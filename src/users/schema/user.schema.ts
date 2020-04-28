@@ -34,7 +34,7 @@ export const UserSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: "pic.png",
+        default: "./uploads/defaultpic.png",
         required: true
     },
 });
