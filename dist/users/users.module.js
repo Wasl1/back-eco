@@ -18,7 +18,7 @@ let UsersModule = class UsersModule {
 UsersModule = __decorate([
     common_1.Module({
         imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: 'User', schema: users_schema_1.UserSchema }]),
+            mongoose_1.MongooseModule.forFeature([{ name: 'User', schema: users_schema_1.UsersSchema }]),
             passport_1.PassportModule.register({ defaultStrategy: 'jwt', session: false }),
             platform_express_1.MulterModule.register({ dest: './uploads', })
         ],

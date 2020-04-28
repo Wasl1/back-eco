@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
-export const UserSchema = new mongoose.Schema({
+export const UsersSchema = new mongoose.Schema({
     email: {
         type: String,
         unique: true,
@@ -40,7 +40,7 @@ export const UserSchema = new mongoose.Schema({
 });
 
 // NOTE: Arrow functions are not used here as we do not want to use lexical scope for 'this'
-UserSchema.pre('save', function(next){
+UsersSchema.pre('save', function(next){
 
     let user = this;
 
@@ -64,7 +64,7 @@ UserSchema.pre('save', function(next){
 
 }); 
 
-UserSchema.methods.checkPassword = function(attempt, callback){
+UsersSchema.methods.checkPassword = function(attempt, callback){
 
     let user = this;
 

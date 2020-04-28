@@ -1262,11 +1262,11 @@
         "signature": "0e3e4667b8f234e57877a573deb1d953e2e7a6255270010e011d569b14408134"
       },
       "../src/users/schema/users.schema.ts": {
-        "version": "b874d6d4100fc361415514491b94e3e12e08cf589bda75c3fc2b35b2424b46f2",
-        "signature": "9368bf8d6c6ae153c57a9244bb5531f30a99c7961d2e19cbf1522795a0118c97"
+        "version": "f5ee3a97c61a9cc07ebeafc200d19b6e3f7a690baf53afa3f0eb959364f7b5e0",
+        "signature": "aa742d62345660fbb5f0b900703f1e32a2f81b097aada8667e0dc3074261d486"
       },
       "../src/users/users.module.ts": {
-        "version": "5224b0e48e17c44fe9db2e0f7c61ea409f203b350c59da163a6136686a3f260e",
+        "version": "ea6322d186641a96d0bac7a29a31bbf1648adb9a5cc8b49f382cee3ce5274a0d",
         "signature": "12dec6c99bd8d11167fa91a31e737abbbf8c9cc789c151a25a9a1d13f328175c"
       },
       "../src/users/dto/login-user.dto.ts": {
@@ -1318,7 +1318,7 @@
         "signature": "2e5d258cf85349b02b015c3f1b8873c152d182c3819a7ccc3aff16fc3037a5fc"
       },
       "../src/app.module.ts": {
-        "version": "e54d2f2c137c7c75bc9d0361b38cf92fc22abc890b5e5c1b08474e22f3e7d88a",
+        "version": "bf969fb37708c7e14d4c4ebd6aa5d549e906685a03a3e1165234d54fd22b4fb5",
         "signature": "9fc7f7b6ad854404973b8cba8e6d883f758237991968e9a3965d716d46f1da88"
       },
       "../node_modules/@nestjs/core/adapters/index.d.ts": {
@@ -8463,7 +8463,7 @@
       "../node_modules/@nestjs/platform-express/index.d.ts",
       "../src/users/file-upload.utils.ts",
       "../src/users/users.controller.ts",
-      "../src/users/schema/users.schema.ts",
+      "../src/users/users.module.ts",
       "../src/users/dto/login-user.dto.ts",
       "../src/auth/interfaces/jwt-payload.interface.ts",
       "../node_modules/@types/jsonwebtoken/index.d.ts",
@@ -8561,7 +8561,7 @@
       "../node_modules/@types/webpack/index.d.ts",
       "../node_modules/@types/yargs-parser/index.d.ts",
       "../node_modules/@types/yargs/index.d.ts",
-      "../src/users/users.module.ts"
+      "../src/users/schema/users.schema.ts"
     ]
   },
   "version": "3.8.3"
