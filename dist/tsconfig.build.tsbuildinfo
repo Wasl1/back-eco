@@ -1262,7 +1262,7 @@
         "signature": "0e3e4667b8f234e57877a573deb1d953e2e7a6255270010e011d569b14408134"
       },
       "../src/users/schema/users.schema.ts": {
-        "version": "f5ee3a97c61a9cc07ebeafc200d19b6e3f7a690baf53afa3f0eb959364f7b5e0",
+        "version": "e4dc5d8649a0c44bf3d28c68a2d7e75e824dbc6254ad478b07a01183f72d5b8f",
         "signature": "aa742d62345660fbb5f0b900703f1e32a2f81b097aada8667e0dc3074261d486"
       },
       "../src/users/users.module.ts": {
