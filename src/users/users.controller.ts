@@ -39,7 +39,7 @@ export class UsersController {
     @UseInterceptors(
         FileInterceptor('avatar', {
           storage: diskStorage({
-            destination: './uploads',
+            destination: './uploads/avatars',
             filename: editFileName,      
           }),
           fileFilter: imageFileFilter,
