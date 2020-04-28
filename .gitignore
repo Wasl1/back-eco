@@ -49,4 +49,6 @@ Thumbs.db
 .js
 *.spec.ts
 .map
-.tsbuildinfo
+tsconfig.build.tsbuildinfo.
+
+/dist/*

@@ -8462,7 +8462,7 @@
       "../node_modules/@nestjs/platform-express/multer/index.d.ts",
       "../node_modules/@nestjs/platform-express/index.d.ts",
       "../src/users/file-upload.utils.ts",
-      "../src/users/users.controller.ts",
+      "../src/users/schema/users.schema.ts",
       "../src/users/users.module.ts",
       "../src/users/dto/login-user.dto.ts",
       "../src/auth/interfaces/jwt-payload.interface.ts",
@@ -8561,7 +8561,7 @@
       "../node_modules/@types/webpack/index.d.ts",
       "../node_modules/@types/yargs-parser/index.d.ts",
       "../node_modules/@types/yargs/index.d.ts",
-      "../src/users/schema/users.schema.ts"
+      "../src/users/users.controller.ts"
     ]
   },
   "version": "3.8.3"
