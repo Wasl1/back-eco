@@ -10,7 +10,7 @@ const common_1 = require("@nestjs/common");
 const users_controller_1 = require("./users.controller");
 const users_service_1 = require("./users.service");
 const mongoose_1 = require("@nestjs/mongoose");
-const user_schema_1 = require("./schema/user.schema");
+const users_schema_1 = require("./schema/users.schema");
 const passport_1 = require("@nestjs/passport");
 const platform_express_1 = require("@nestjs/platform-express");
 let UsersModule = class UsersModule {
@@ -18,7 +18,7 @@ let UsersModule = class UsersModule {
 UsersModule = __decorate([
     common_1.Module({
         imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: 'User', schema: user_schema_1.UserSchema }]),
+            mongoose_1.MongooseModule.forFeature([{ name: 'User', schema: users_schema_1.UserSchema }]),
             passport_1.PassportModule.register({ defaultStrategy: 'jwt', session: false }),
             platform_express_1.MulterModule.register({ dest: './uploads', })
         ],
