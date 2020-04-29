@@ -1318,7 +1318,7 @@
         "signature": "2e5d258cf85349b02b015c3f1b8873c152d182c3819a7ccc3aff16fc3037a5fc"
       },
       "../src/app.module.ts": {
-        "version": "bf969fb37708c7e14d4c4ebd6aa5d549e906685a03a3e1165234d54fd22b4fb5",
+        "version": "e4e0bf1ca593117d589ba0627555e5a41d9d13bc78613a3241c858072b9ba6bb",
         "signature": "9fc7f7b6ad854404973b8cba8e6d883f758237991968e9a3965d716d46f1da88"
       },
       "../node_modules/@nestjs/core/adapters/index.d.ts": {
@@ -8397,6 +8397,7 @@
       "../node_modules/@nestjs/passport/dist/index.d.ts",
       "../node_modules/@nestjs/passport/index.d.ts",
       "../src/users/interface/users.interface.ts",
+      "../src/users/users.service.ts",
       "../node_modules/@nestjs/core/adapters/http-adapter.d.ts",
       "../node_modules/@nestjs/platform-express/interfaces/serve-static-options.interface.d.ts",
       "../node_modules/@nestjs/platform-express/adapters/express-adapter.d.ts",
@@ -8476,7 +8477,6 @@
       "../src/auth/auth.service.ts",
       "../src/auth/auth.controller.ts",
       "../src/auth/auth.module.ts",
-      "../src/app.module.ts",
       "../node_modules/@nestjs/core/adapters/index.d.ts",
       "../node_modules/@nestjs/core/injector/module-token-factory.d.ts",
       "../node_modules/@nestjs/core/injector/modules-container.d.ts",
@@ -8561,7 +8561,7 @@
       "../node_modules/@types/webpack/index.d.ts",
       "../node_modules/@types/yargs-parser/index.d.ts",
       "../node_modules/@types/yargs/index.d.ts",
-      "../src/users/users.service.ts"
+      "../src/app.module.ts"
     ]
   },
   "version": "3.8.3"
