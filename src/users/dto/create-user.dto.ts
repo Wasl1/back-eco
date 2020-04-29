@@ -6,5 +6,6 @@ export class CreateUserDto {
     readonly prenom: string;
     readonly adresse: string;
     readonly tel: string;
+    readonly role: string;
     readonly avatar: string;
 }

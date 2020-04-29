@@ -32,6 +32,12 @@ export const UsersSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+
+    role: {
+        type: String,
+        required: true,
+        default: "user"
+    },
     avatar: {
         type: String,
         default: "defaultpic.png",
