@@ -51,4 +51,6 @@ Thumbs.db
 .map
 tsconfig.build.tsbuildinfo.
 
-/dist/*
+dist/*
+dist\*
+
