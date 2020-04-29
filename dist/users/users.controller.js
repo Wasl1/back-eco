@@ -83,7 +83,7 @@ __decorate([
     common_1.Put('/avatar/:id'),
     common_1.UseInterceptors(platform_express_1.FileInterceptor('avatar', {
         storage: multer_1.diskStorage({
-            destination: './uploads',
+            destination: './uploads/avatars',
             filename: file_upload_utils_1.editFileName,
         }),
         fileFilter: file_upload_utils_1.imageFileFilter,

@@ -950,8 +950,8 @@
         "signature": "8f1241f5d9f0d3d72117768b3c974e462840fbd85026fb66685078945404cf2f"
       },
       "../src/users/dto/create-user.dto.ts": {
-        "version": "be11f7ef89b22b8f2272fb97e9444ff25723cfde9a7b699ae542bf0df5a6aa22",
-        "signature": "10bd54acab07cac9ddef7b4e97c87452e42ec1b1cf7273101eaeb7f717feb589"
+        "version": "4d418612ca5731abbe504c90491f02de580bd3589b7aa10899c1887c5b88548f",
+        "signature": "9034a530a7484c4711a0eb0d29afdc407ad89819607a12141950761c756969f3"
       },
       "../node_modules/@nestjs/passport/dist/abstract.strategy.d.ts": {
         "version": "ba63131c5e91f797736444933af16ffa42f9f8c150d859ec65f568f037a416ea",
@@ -998,7 +998,7 @@
         "signature": "d9ce9f57a79a88ae6760b5039cbd89b86afe689ba3bd8cf09a272008767cf2ab"
       },
       "../src/users/users.service.ts": {
-        "version": "a8076427c7199c73f1c1250baa9595e01118fb8f45929ca3896a24054229de9a",
+        "version": "3fcb8593f0be2a9b628e16b9ff1cf31b14760f8eb6db25ced43447bd0e0c8490",
         "signature": "bb8f3e93ced1b87052ac0d0c462d903806097f5828a09bcd430485cdee0b5a27"
       },
       "../node_modules/@nestjs/core/adapters/http-adapter.d.ts": {
@@ -1258,11 +1258,11 @@
         "signature": "0aab5a5d56db6d9591f2b8c4415d74a5f6a8f8be1d688389ed6f3dbcfa44ec91"
       },
       "../src/users/users.controller.ts": {
-        "version": "2462be522aa38fa24d70e5de24bae4cbe9dffca67484d49c0523e7e59303b42c",
+        "version": "fca90e30701ab3ff464683d9948785a5c93ec26470745353db766263bcae3cab",
         "signature": "0e3e4667b8f234e57877a573deb1d953e2e7a6255270010e011d569b14408134"
       },
       "../src/users/schema/users.schema.ts": {
-        "version": "e4dc5d8649a0c44bf3d28c68a2d7e75e824dbc6254ad478b07a01183f72d5b8f",
+        "version": "0552622872731f65efa615245c3c77ddc33a97e9102a679266a9a70e18716eac",
         "signature": "aa742d62345660fbb5f0b900703f1e32a2f81b097aada8667e0dc3074261d486"
       },
       "../src/users/users.module.ts": {
@@ -8397,7 +8397,6 @@
       "../node_modules/@nestjs/passport/dist/index.d.ts",
       "../node_modules/@nestjs/passport/index.d.ts",
       "../src/users/interface/users.interface.ts",
-      "../src/users/users.service.ts",
       "../node_modules/@nestjs/core/adapters/http-adapter.d.ts",
       "../node_modules/@nestjs/platform-express/interfaces/serve-static-options.interface.d.ts",
       "../node_modules/@nestjs/platform-express/adapters/express-adapter.d.ts",
@@ -8462,6 +8461,7 @@
       "../node_modules/@nestjs/platform-express/multer/index.d.ts",
       "../node_modules/@nestjs/platform-express/index.d.ts",
       "../src/users/file-upload.utils.ts",
+      "../src/users/users.controller.ts",
       "../src/users/schema/users.schema.ts",
       "../src/users/users.module.ts",
       "../src/users/dto/login-user.dto.ts",
@@ -8561,7 +8561,7 @@
       "../node_modules/@types/webpack/index.d.ts",
       "../node_modules/@types/yargs-parser/index.d.ts",
       "../node_modules/@types/yargs/index.d.ts",
-      "../src/users/users.controller.ts"
+      "../src/users/users.service.ts"
     ]
   },
   "version": "3.8.3"
