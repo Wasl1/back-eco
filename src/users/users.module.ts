@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersSchema } from './schema/users.schema';
 import { PassportModule } from '@nestjs/passport';
 import { MulterModule } from '@nestjs/platform-express';
+// import { fs } from 'fs-extra';
 
 @Module({
   imports: [

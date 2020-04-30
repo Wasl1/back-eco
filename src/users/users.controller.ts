@@ -5,16 +5,22 @@ import { UsersService } from './users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { editFileName, imageFileFilter } from './file-upload.utils';
 import { diskStorage } from 'multer';
-
 @Controller('users')
 export class UsersController {
-
     constructor(private usersService: UsersService) { }
 
     @Get()
     public async getAllUsers() {
         const users = await this.usersService.findAll();
         return { users, total: users.length};
+    }
+
+    @Get('files')
+    public deleteFile(){
+        const fs = require('fs-extra');
+        fs.remove('./uploads/cap-313a.png', err => {
+            console.log('succes');
+        });    
     }
 
     @Get('find')
@@ -35,7 +41,7 @@ export class UsersController {
         return await this.usersService.create(createUserDto);
     }
 
-    @Put('/avatar/:id')
+    @Put('/:id')
     @UseInterceptors(
         FileInterceptor('avatar', {
           storage: diskStorage({
@@ -45,22 +51,28 @@ export class UsersController {
           fileFilter: imageFileFilter,
         }),
       )
-    public async updateUserAvatar(@Param() param, @Body() body,  @UploadedFile() uploadAvatar: any) {   
-        body = { avatar: uploadAvatar.filename};
-        const user = await this.usersService.update(param.id, body);
-        return user;
-    }
-
-    @Put('/:id')
-    public async updateUSer(@Param() param, @Body() body){
-        const user = await this.usersService.update(param.id, body);
-        return user;
+    public async updateUSer(@Param() param, @Body() body, @UploadedFile() uploadAvatar: any){
+        if(uploadAvatar){
+            body['avatar'] = uploadAvatar.filename;
+            const user = await this.usersService.update(param.id, body);
+            return user
+        }else{
+            const user = await this.usersService.update(param.id, body);
+            return user
+        }
     }
 
     @Delete('/:id')
     public async deleteUser(@Param() param) {
-
-        const user = await this.usersService.delete(param.id);
+        const user = await this.usersService.findById(param.id);
+        let avatar = user['avatar'];
+        console.log('av', avatar);
+        const fs = require('fs-extra');
+        fs.remove("./uploads/avatars/"+avatar+"", err => {
+            console.log('succes');
+        const user = this.usersService.delete(param.id);
+        return user;
+        });
         return user;
     }
 }

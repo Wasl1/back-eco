@@ -28,6 +28,7 @@
     "@nestjs/passport": "^7.0.0",
     "@nestjs/platform-express": "^7.0.0",
     "bcrypt": "^4.0.1",
+    "fs-extra": "^9.0.0",
     "mongoose": "^5.9.10",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",

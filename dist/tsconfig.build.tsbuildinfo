@@ -1258,15 +1258,15 @@
         "signature": "0aab5a5d56db6d9591f2b8c4415d74a5f6a8f8be1d688389ed6f3dbcfa44ec91"
       },
       "../src/users/users.controller.ts": {
-        "version": "fca90e30701ab3ff464683d9948785a5c93ec26470745353db766263bcae3cab",
-        "signature": "0e3e4667b8f234e57877a573deb1d953e2e7a6255270010e011d569b14408134"
+        "version": "cd3dc5cb83dd1fb33c013ed1441b17bc2779e96d12bd32b721cc318c03fdd731",
+        "signature": "fb02b61847b85e38351c30a9a195877d48f677cfda514f63c834fc4e587b3a41"
       },
       "../src/users/schema/users.schema.ts": {
         "version": "0552622872731f65efa615245c3c77ddc33a97e9102a679266a9a70e18716eac",
         "signature": "aa742d62345660fbb5f0b900703f1e32a2f81b097aada8667e0dc3074261d486"
       },
       "../src/users/users.module.ts": {
-        "version": "ea6322d186641a96d0bac7a29a31bbf1648adb9a5cc8b49f382cee3ce5274a0d",
+        "version": "053a00ff4e2f53c9a5a124868f95e0f20769b16a0be46648ba2f23928df60fce",
         "signature": "12dec6c99bd8d11167fa91a31e737abbbf8c9cc789c151a25a9a1d13f328175c"
       },
       "../src/users/dto/login-user.dto.ts": {
@@ -1318,7 +1318,7 @@
         "signature": "2e5d258cf85349b02b015c3f1b8873c152d182c3819a7ccc3aff16fc3037a5fc"
       },
       "../src/app.module.ts": {
-        "version": "e4e0bf1ca593117d589ba0627555e5a41d9d13bc78613a3241c858072b9ba6bb",
+        "version": "dc4251abfb7f143254df0715dad280c71db764cd732272fd5e87f55a451d268f",
         "signature": "9fc7f7b6ad854404973b8cba8e6d883f758237991968e9a3965d716d46f1da88"
       },
       "../node_modules/@nestjs/core/adapters/index.d.ts": {

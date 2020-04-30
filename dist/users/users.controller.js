@@ -26,6 +26,12 @@ let UsersController = class UsersController {
         const users = await this.usersService.findAll();
         return { users, total: users.length };
     }
+    deleteFile() {
+        const fs = require('fs-extra');
+        fs.remove('./uploads/cap-313a.png', err => {
+            console.log('succes');
+        });
+    }
     async findOneUser(body) {
         const queryCondition = body;
         const users = await this.usersService.findOne(queryCondition);
@@ -38,17 +44,27 @@ let UsersController = class UsersController {
     async create(createUserDto) {
         return await this.usersService.create(createUserDto);
     }
-    async updateUserAvatar(param, body, uploadAvatar) {
-        body = { avatar: uploadAvatar.filename };
-        const user = await this.usersService.update(param.id, body);
-        return user;
-    }
-    async updateUSer(param, body) {
-        const user = await this.usersService.update(param.id, body);
-        return user;
+    async updateUSer(param, body, uploadAvatar) {
+        if (uploadAvatar) {
+            body['avatar'] = uploadAvatar.filename;
+            const user = await this.usersService.update(param.id, body);
+            return user;
+        }
+        else {
+            const user = await this.usersService.update(param.id, body);
+            return user;
+        }
     }
     async deleteUser(param) {
-        const user = await this.usersService.delete(param.id);
+        const user = await this.usersService.findById(param.id);
+        let avatar = user['avatar'];
+        console.log('av', avatar);
+        const fs = require('fs-extra');
+        fs.remove("./uploads/avatars/" + avatar + "", err => {
+            console.log('succes');
+            const user = this.usersService.delete(param.id);
+            return user;
+        });
         return user;
     }
 };
@@ -58,6 +74,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getAllUsers", null);
+__decorate([
+    common_1.Get('files'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "deleteFile", null);
 __decorate([
     common_1.Get('find'),
     __param(0, common_1.Body()),
@@ -80,7 +102,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "create", null);
 __decorate([
-    common_1.Put('/avatar/:id'),
+    common_1.Put('/:id'),
     common_1.UseInterceptors(platform_express_1.FileInterceptor('avatar', {
         storage: multer_1.diskStorage({
             destination: './uploads/avatars',
@@ -91,13 +113,6 @@ __decorate([
     __param(0, common_1.Param()), __param(1, common_1.Body()), __param(2, common_1.UploadedFile()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object, Object]),
-    __metadata("design:returntype", Promise)
-], UsersController.prototype, "updateUserAvatar", null);
-__decorate([
-    common_1.Put('/:id'),
-    __param(0, common_1.Param()), __param(1, common_1.Body()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateUSer", null);
 __decorate([
