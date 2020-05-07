@@ -12,11 +12,12 @@ const app_service_1 = require("./app.service");
 const mongoose_1 = require("@nestjs/mongoose");
 const users_module_1 = require("./users/users.module");
 const auth_module_1 = require("./auth/auth.module");
+const produits_module_1 = require("./produits/produits.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
     common_1.Module({
-        imports: [mongoose_1.MongooseModule.forRoot('mongodb://localhost:27017/ecommerce', { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true }), users_module_1.UsersModule, auth_module_1.AuthModule],
+        imports: [mongoose_1.MongooseModule.forRoot('mongodb://localhost:27017/ecommerce', { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true }), users_module_1.UsersModule, auth_module_1.AuthModule, produits_module_1.ProduitsModule],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
     })

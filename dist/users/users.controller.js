@@ -26,12 +26,6 @@ let UsersController = class UsersController {
         const users = await this.usersService.findAll();
         return { users, total: users.length };
     }
-    deleteFile() {
-        const fs = require('fs-extra');
-        fs.remove('./uploads/cap-313a.png', err => {
-            console.log('succes');
-        });
-    }
     async findOneUser(body) {
         const queryCondition = body;
         const users = await this.usersService.findOne(queryCondition);
@@ -58,7 +52,6 @@ let UsersController = class UsersController {
     async deleteUser(param) {
         const user = await this.usersService.findById(param.id);
         let avatar = user['avatar'];
-        console.log('av', avatar);
         const fs = require('fs-extra');
         fs.remove("./uploads/avatars/" + avatar + "", err => {
             console.log('succes');
@@ -74,12 +67,6 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getAllUsers", null);
-__decorate([
-    common_1.Get('files'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], UsersController.prototype, "deleteFile", null);
 __decorate([
     common_1.Get('find'),
     __param(0, common_1.Body()),

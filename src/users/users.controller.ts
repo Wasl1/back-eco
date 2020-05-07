@@ -15,14 +15,6 @@ export class UsersController {
         return { users, total: users.length};
     }
 
-    @Get('files')
-    public deleteFile(){
-        const fs = require('fs-extra');
-        fs.remove('./uploads/cap-313a.png', err => {
-            console.log('succes');
-        });    
-    }
-
     @Get('find')
     public async findOneUser(@Body() body) {
         const queryCondition = body;
@@ -66,7 +58,6 @@ export class UsersController {
     public async deleteUser(@Param() param) {
         const user = await this.usersService.findById(param.id);
         let avatar = user['avatar'];
-        console.log('av', avatar);
         const fs = require('fs-extra');
         fs.remove("./uploads/avatars/"+avatar+"", err => {
             console.log('succes');

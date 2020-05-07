@@ -7,7 +7,6 @@ export declare class UsersController {
         users: import("./interface/users.interface").Users[];
         total: number;
     }>;
-    deleteFile(): void;
     findOneUser(body: any): Promise<import("./interface/users.interface").Users>;
     getUser(param: any): Promise<import("./interface/users.interface").Users>;
     create(createUserDto: CreateUserDto): Promise<any>;
