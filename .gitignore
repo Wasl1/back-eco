@@ -3,9 +3,9 @@
 # compiled output
 
 dist/*
-!/dist/v4
-!/dist/v5
-!/dist/v6
+
+/dist
+
 
 /tmp
 /out-tsc
