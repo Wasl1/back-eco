@@ -1342,7 +1342,11 @@
         "signature": "bca4fa19bef81be86efa6d4242003a4f6f7d21e6042dd6d59e3ffbf7cadc86a4"
       },
       "../src/app.module.ts": {
+<<<<<<< HEAD
         "version": "647e3686a27606f4fac0d4323f4d5040d14a9449d10c5e581a2d6cacddbc96f2",
+=======
+        "version": "cef10c910f1407764d4dcbd927c022fc6d1e4e34ba91f92a5e9b15c9091c8784",
+>>>>>>> 59d1d41596e32bc774c4be36317344d0780a4906
         "signature": "9fc7f7b6ad854404973b8cba8e6d883f758237991968e9a3965d716d46f1da88"
       },
       "../node_modules/@nestjs/core/adapters/index.d.ts": {
