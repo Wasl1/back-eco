@@ -54,7 +54,10 @@ export class ProduitsService {
     }
 
     async updateFavorisPush(ID: number, newValue: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$push: {favoris: newValue}}, {safe: true, upsert: true}, function (err, doc){
+
+        console.log("dans le service",newValue);
+
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet :  { favoris : newValue}}, {safe: true, upsert: true}, function (err, doc){
             if(err){console.log(err);
             }else{
                 console.log("favoris ajouté");
