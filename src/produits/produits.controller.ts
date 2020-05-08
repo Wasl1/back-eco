@@ -76,16 +76,7 @@ export class ProduitsController {
   }
 
   @Put('/:id')
-  @UseInterceptors(
-    FilesInterceptor("images", 3, {
-      storage: diskStorage({
-        destination: "./uploads/produits",
-        filename: editFileName,
-      }),
-      fileFilter: imageFileFilter,
-    })
-  )
-    public async updateProduits(@Param() param, @Body() body, @UploadedFile() uploadImages: any){ 
+    public async updateProduits(@Param() param, @Body() body){ 
       
       let detail_fabrication = {};
       let detail_physique = {};
@@ -149,7 +140,7 @@ export class ProduitsController {
     }
 
     @Put('/update/imagesRemove/:id')
-    public async dellImages(@Param() param, @Body() body){
+    public async deleteImages(@Param() param, @Body() body){
       let values = Object.values(body);
       var array = new Array;
       array = [values[0]];
@@ -168,7 +159,7 @@ export class ProduitsController {
       let array = [];
       let values = Object.values(body);
       Array.prototype.push.apply(array, values);
-      const produits = await this.produitsService.updateFavorisPush(param.id, array);
+      const produits = await this.produitsService.updateFavorisAdd(param.id, array);
       return produits;
     }
 
@@ -178,7 +169,7 @@ export class ProduitsController {
       let values = Object.values(body);
       Array.prototype.push.apply(array, values);
       
-      const produits = await this.produitsService.updateFavorisPull(param.id, array[0]);
+      const produits = await this.produitsService.updateFavorisRemove(param.id, array[0]);
       return produits;
     }
 
@@ -187,7 +178,7 @@ export class ProduitsController {
       let array = [];
       let values = Object.values(body);
       Array.prototype.push.apply(array, values);
-      const produits = await this.produitsService.updateVotePush(param.id, array);
+      const produits = await this.produitsService.updateVoteAdd(param.id, array);
       return produits;
     }
 
@@ -196,7 +187,7 @@ export class ProduitsController {
       let array = [];
       let values = Object.values(body);
       Array.prototype.push.apply(array, values);
-      const produits = await this.produitsService.updateVotePull(param.id, array[0]);
+      const produits = await this.produitsService.updateVoteRemove(param.id, array[0]);
       return produits;
     }
 
