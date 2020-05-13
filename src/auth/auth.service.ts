@@ -11,15 +11,12 @@ export class AuthService {
     }
 
     async validateUserByPassword(loginAttempt: LoginUserDto) {
-
         // This will be used for the initial login
         let userToAttempt = await this.usersService.findOneByUsername(loginAttempt.username);
         
         return new Promise((resolve) => {
-
             // Check the supplied password against the hash stored for this username address
             userToAttempt.checkPassword(loginAttempt.password, (err, isMatch) => {
-    
                 if(err) throw new UnauthorizedException();
     
                 if(isMatch){
@@ -29,11 +26,8 @@ export class AuthService {
                 } else {
                     throw new UnauthorizedException();
                 }
-    
             });
-
         });
-
     }
 
     async validateUserByJwt(payload: JwtPayload) { 
@@ -46,11 +40,9 @@ export class AuthService {
         } else {
             throw new UnauthorizedException();
         }
-
     }
 
     createJwtPayload(user){
-
         let data: JwtPayload = {
             username: user.username
         };
@@ -61,7 +53,5 @@ export class AuthService {
             expiresIn: 3600,
             token: jwt            
         }
-
     }
-
 }

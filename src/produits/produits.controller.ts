@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Put, UploadedFile, Delete } from "@nestjs/common";
+import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Put, UploadedFile, Delete, Res } from "@nestjs/common";
 import { ProduitsService } from "./produits.service";
 import { ProduitsDto } from "./dto/produits.dto";
 import { FilesInterceptor } from "@nestjs/platform-express";
@@ -26,6 +26,15 @@ export class ProduitsController {
     public async getProduit(@Param() param){
         const produits = await this.produitsService.findById(param.id);
         return produits;
+    }
+
+    @Get('/getImage/:imgpath')
+    seeUploadedFile(@Param('imgpath') images, @Res() res) {
+    return res.sendFile(images, { root: "./uploads/produits"}, err => {
+        if(err){
+          console.log("Image introuvable");
+        }
+      });
     }
 
   @Post()
@@ -141,16 +150,15 @@ export class ProduitsController {
 
     @Put('/update/imagesRemove/:id')
     public async deleteImages(@Param() param, @Body() body){
-      let values = Object.values(body);
-      var array = new Array;
-      array = [values[0]];
-      console.log("valeurs j", array[0]);
-        const fs = require('fs-extra');
-        for(var i = 0; i < array[0].length; i++){
-          fs.remove("./uploads/produits/"+array[0][i]+"", err => {
+      let images = [];
+      images = body.images;
+            
+      const fs = require('fs-extra');
+        for(var i = 0; i < images.length; i++){
+          fs.remove("./uploads/produits/"+images[i]+"", err => {
           })
-        }
-      const produits = await this.produitsService.updateDeleteImage(param.id, values[0]);
+      }
+      const produits = await this.produitsService.updateDeleteImage(param.id, images);
       return produits;
     }
 
@@ -200,6 +208,7 @@ export class ProduitsController {
         for(var i = 0; i < j; i++){
           fs.remove("./uploads/produits/"+images[i]+"", err => {
           })
+          console.log("./uploads/produits/"+images[i]+""); 
         }
         return this.produitsService.delete(param.id);
     }

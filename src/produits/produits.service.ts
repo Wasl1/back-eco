@@ -36,7 +36,7 @@ export class ProduitsService {
         return await this.produitsModel.findById(ID).exec();
     }
     async updateAddImage(ID: number, id_user: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {images: id_user}}, {safe: true, upsert: true}, function (err, doc){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {images: id_user}}, {safe: true, upsert: true}, err =>{
             if(err){console.log(err);
             }else{
                 console.log("Nouvelles images ajoutées");
@@ -45,7 +45,7 @@ export class ProduitsService {
     }
 
     async updateDeleteImage(ID: number, id_user: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {"$in": id_user}}}, {safe: true, multi: true}, function (err, doc){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {"$in": id_user}}}, {safe: true, multi: true}, err =>{
             if(err){console.log(err);
             }else{
                 console.log("Images supprimées");
