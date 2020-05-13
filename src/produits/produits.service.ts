@@ -35,8 +35,8 @@ export class ProduitsService {
         await this.produitsModel.findByIdAndUpdate(ID, newValue).exec();
         return await this.produitsModel.findById(ID).exec();
     }
-    async updateAddImage(ID: number, newValue: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$push: {images: newValue}}, {safe: true, upsert: true}, function (err, doc){
+    async updateAddImage(ID: number, id_user: any){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {images: id_user}}, {safe: true, upsert: true}, function (err, doc){
             if(err){console.log(err);
             }else{
                 console.log("Nouvelles images ajoutées");
@@ -44,8 +44,8 @@ export class ProduitsService {
         }).exec();
     }
 
-    async updateDeleteImage(ID: number, newValue: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {"$in": newValue}}}, {safe: true, multi: true}, function (err, doc){
+    async updateDeleteImage(ID: number, id_user: any){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {"$in": id_user}}}, {safe: true, multi: true}, function (err, doc){
             if(err){console.log(err);
             }else{
                 console.log("Images supprimées");
@@ -53,11 +53,8 @@ export class ProduitsService {
         }).exec();
     }
 
-    async updateFavorisPush(ID: number, newValue: any){
-
-        console.log("dans le service",newValue);
-
-        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet :  { favoris : newValue}}, {safe: true, upsert: true}, function (err, doc){
+    async updateFavorisPush(ID: number, id_user: any){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {favoris: id_user}}, {safe: true, upsert: true}, err => {
             if(err){console.log(err);
             }else{
                 console.log("favoris ajouté");
@@ -65,8 +62,8 @@ export class ProduitsService {
         }).exec();
     }
 
-    async updateFavorisPull(ID: number, newValue: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {favoris: newValue}}, {safe: true, multi: true}, function (err, doc){
+    async updateFavorisPull(ID: number, id_user: any){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {favoris: id_user}}, {safe: true, multi: true}, err => {
             if(err){console.log(err);
             }else{
                 console.log("favoris annulé");
@@ -74,8 +71,8 @@ export class ProduitsService {
         }).exec();
     }
 
-    async updateVotePush(ID: number, newValue: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$push: {vote: newValue}}, {safe: true, upsert: true}, function (err, doc){
+    async updateVotePush(ID: number, id_user: any){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {vote: id_user}}, {safe: true, upsert: true}, err => {
             if(err){console.log(err);
             }else{
                 console.log("vote ajouté");
@@ -83,8 +80,8 @@ export class ProduitsService {
         }).exec();
     }
 
-    async updateVotePull(ID: number, newValue: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {vote: newValue}}, {safe: true, multi: true}, function (err, doc){
+    async updateVotePull(ID: number, id_user: any){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {vote: id_user}}, {safe: true, multi: true}, err => {
             if(err){console.log(err);
             }else{
                 console.log("vote annulé");

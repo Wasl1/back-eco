@@ -148,7 +148,7 @@ export class ProduitsController {
       return produits;
     }
 
-    @Put('/update/imagesDel/:id')
+    @Put('/update/imagesRemove/:id')
     public async dellImages(@Param() param, @Body() body){
       let values = Object.values(body);
       var array = new Array;
@@ -163,7 +163,7 @@ export class ProduitsController {
       return produits;
     }
 
-    @Put('/update/favorisPush/:id')
+    @Put('/update/favorisAdd/:id')
     public async updateFavorisPush(@Param() param, @Body() body){
       let array = [];
       let values = Object.values(body);
@@ -172,7 +172,7 @@ export class ProduitsController {
       return produits;
     }
 
-    @Put('/update/favorisPull/:id')
+    @Put('/update/favorisRemove/:id')
     public async updateFavorisPull(@Param() param, @Body() body){
       let array = [];
       let values = Object.values(body);
@@ -182,7 +182,7 @@ export class ProduitsController {
       return produits;
     }
 
-    @Put('/update/votePush/:id')
+    @Put('/update/voteAdd/:id')
     public async updateVotePush(@Param() param, @Body() body){
       let array = [];
       let values = Object.values(body);
@@ -191,7 +191,7 @@ export class ProduitsController {
       return produits;
     }
 
-    @Put('/update/votePull/:id')
+    @Put('/update/voteRemove/:id')
     public async updateVotePull(@Param() param, @Body() body){
       let array = [];
       let values = Object.values(body);
