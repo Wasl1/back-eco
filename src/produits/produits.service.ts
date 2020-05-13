@@ -36,7 +36,7 @@ export class ProduitsService {
         return await this.produitsModel.findById(ID).exec();
     }
     async updateAddImage(ID: number, id_user: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {images: id_user}}, {safe: true, upsert: true}, function (err, doc){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {images: id_user}}, {safe: true, upsert: true}, err =>{
             if(err){console.log(err);
             }else{
                 console.log("Nouvelles images ajoutées");
@@ -45,7 +45,7 @@ export class ProduitsService {
     }
 
     async updateDeleteImage(ID: number, id_user: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {"$in": id_user}}}, {safe: true, multi: true}, function (err, doc){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {"$in": id_user}}}, {safe: true, multi: true}, err =>{
             if(err){console.log(err);
             }else{
                 console.log("Images supprimées");
@@ -53,7 +53,7 @@ export class ProduitsService {
         }).exec();
     }
 
-    async updateFavorisPush(ID: number, id_user: any){
+    async updateFavorisAdd(ID: number, id_user: any){
         return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {favoris: id_user}}, {safe: true, upsert: true}, err => {
             if(err){console.log(err);
             }else{
@@ -62,7 +62,7 @@ export class ProduitsService {
         }).exec();
     }
 
-    async updateFavorisPull(ID: number, id_user: any){
+    async updateFavorisRemove(ID: number, id_user: any){
         return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {favoris: id_user}}, {safe: true, multi: true}, err => {
             if(err){console.log(err);
             }else{
@@ -71,7 +71,7 @@ export class ProduitsService {
         }).exec();
     }
 
-    async updateVotePush(ID: number, id_user: any){
+    async updateVoteAdd(ID: number, id_user: any){
         return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {vote: id_user}}, {safe: true, upsert: true}, err => {
             if(err){console.log(err);
             }else{
@@ -80,7 +80,7 @@ export class ProduitsService {
         }).exec();
     }
 
-    async updateVotePull(ID: number, id_user: any){
+    async updateVoteRemove(ID: number, id_user: any){
         return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {vote: id_user}}, {safe: true, multi: true}, err => {
             if(err){console.log(err);
             }else{

@@ -63,11 +63,8 @@ UsersSchema.pre('save', function(next){
             if(err) return next(err);
             user.password = hash;
             next();
-
         });
-
     });
-
 }); 
 
 UsersSchema.methods.checkPassword = function(attempt, callback){
@@ -78,5 +75,4 @@ UsersSchema.methods.checkPassword = function(attempt, callback){
         if(err) return callback(err);
         callback(null, isMatch);
     });
-
 };
