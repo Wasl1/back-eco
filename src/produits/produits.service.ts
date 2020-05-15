@@ -8,8 +8,8 @@ import { debug } from 'console';
 export class ProduitsService {
     constructor(@InjectModel('Produits') private produitsModel: Model<ProduitsInterface>) {}
 
-    async findOne(options: object): Promise<ProduitsInterface> {
-        return await this.produitsModel.findOne(options).exec();
+    async find(options: object): Promise<ProduitsInterface> {
+        return await this.produitsModel.find(options).exec();
     }
 
     async findAll(): Promise<ProduitsInterface[]> {
@@ -18,6 +18,10 @@ export class ProduitsService {
 
     async findById(ID: number): Promise<ProduitsInterface> {
         return await this.produitsModel.findById(ID).exec();
+    }
+
+    async getLastProduits(): Promise<ProduitsInterface[]> {
+        return await this.produitsModel.find().sort('-_id').limit(10).exec();
     }
 
     async create(produitsInterface: any) {
@@ -35,6 +39,7 @@ export class ProduitsService {
         await this.produitsModel.findByIdAndUpdate(ID, newValue).exec();
         return await this.produitsModel.findById(ID).exec();
     }
+
     async updateAddImage(ID: number, id_user: any){
         return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {images: id_user}}, {safe: true, upsert: true}, err =>{
             if(err){console.log(err);
@@ -89,6 +94,10 @@ export class ProduitsService {
         }).exec();
     }
 
+    async incrementView(ID: number): Promise<ProduitsInterface>{
+        return await this.produitsModel.findByIdAndUpdate(ID, {$inc : {'vu': 1}}).exec();
+    }
+
     async delete(ID: number): Promise<string> {
         try {
             await this.produitsModel.findByIdAndRemove(ID).exec();
@@ -98,5 +107,10 @@ export class ProduitsService {
             debug(err);
             return 'Impossible de faire la suppression';
         }
+    }
+
+    async deleteMany(id_produits: any): Promise<string>{
+        await this.produitsModel.deleteMany({_id: {$in: id_produits}}).exec();
+        return 'Produits supprimés';
     }
 }

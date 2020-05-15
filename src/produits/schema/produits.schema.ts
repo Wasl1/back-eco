@@ -37,6 +37,18 @@ export const ProduitsSchema = new mongoose.Schema({
         type: Object,
         required: true
     },
+    garantie: {
+        type: Number,
+        required: true
+    },
+    vu: {
+        type: Number,
+        default: 0
+    },
+    provenance: {
+        type: String,
+        required: true
+    },
     favoris: {
         type: [],
     }

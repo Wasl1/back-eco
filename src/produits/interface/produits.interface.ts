@@ -10,5 +10,8 @@ export interface ProduitsInterface extends Document {
     readonly detail_fabrication: {};
     readonly detail_physique: {};
     readonly prix: {};
+    readonly garantie : number;
+    readonly vu : number;
+    readonly provenance : string;
     readonly favoris: any;
 }
