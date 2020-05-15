@@ -15,6 +15,9 @@ export class  ProduitsDto {
     readonly couleur: string;
     readonly prix: number;
     readonly prix_promotion: number;
+    readonly garantie : number;
+    readonly vu : number;
+    readonly provenance : string;
     favoris: any;
 
 }

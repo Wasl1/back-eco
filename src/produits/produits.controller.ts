@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Put, UploadedFile, Delete, Res } from "@nestjs/common";
+import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Put, UploadedFile, Delete, Res, BadRequestException, HttpException, HttpStatus } from "@nestjs/common";
 import { ProduitsService } from "./produits.service";
 import { ProduitsDto } from "./dto/produits.dto";
 import { FilesInterceptor } from "@nestjs/platform-express";
@@ -15,10 +15,16 @@ export class ProduitsController {
         return { produits, total: produits.length};
     }
 
+    @Get('getLastProduits')
+    public async getLastProduits() {
+        const produits = await this.produitsService.getLastProduits();
+        return { produits, total: produits.length};
+    }
+
     @Get('find')
-    public async findOneProduit(@Body() body) {
+    public async findProduit(@Body() body) {
         const queryCondition = body;
-        const produits = await this.produitsService.findOne(queryCondition);
+        const produits = await this.produitsService.find(queryCondition);
         return produits;
     }
 
@@ -29,10 +35,10 @@ export class ProduitsController {
     }
 
     @Get('/getImage/:imgpath')
-    seeUploadedFile(@Param('imgpath') images, @Res() res) {
+    public async getImage(@Param('imgpath') images, @Res() res) {
     return res.sendFile(images, { root: "./uploads/produits"}, err => {
         if(err){
-          console.log("Image introuvable");
+          return res.sendFile("default.png", { root: "./uploads/produits"});
         }
       });
     }
@@ -80,6 +86,8 @@ export class ProduitsController {
     data["detail_fabrication"] = detail_fabrication;
     data["detail_physique"] = detail_physique;
     data["prix"] = prix;
+    data["garantie"] = addProduitsDto.garantie;
+    data["provenance"] = addProduitsDto.provenance;
     
     return await this.produitsService.create(data);
   }
@@ -199,6 +207,12 @@ export class ProduitsController {
       return produits;
     }
 
+    @Put('/update/incrementView/:id')
+    public async incrementView(@Param() param){
+      const produits = await this.produitsService.incrementView(param.id);
+      return produits;
+    }
+
     @Delete('/:id')
     public async deleteProduits(@Param() param) {
         const produit = await this.produitsService.findById(param.id);
@@ -211,5 +225,12 @@ export class ProduitsController {
           console.log("./uploads/produits/"+images[i]+""); 
         }
         return this.produitsService.delete(param.id);
+    }
+
+    @Delete('/delete/deleteManyProduits')
+    public async deleteManyProduits(@Body() body){
+      let id_produits = [];
+      id_produits = body.id_produits;
+      return this.produitsService.deleteMany(id_produits);
     }
 }
