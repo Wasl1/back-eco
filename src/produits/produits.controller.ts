@@ -4,21 +4,20 @@ import { ProduitsDto } from "./dto/produits.dto";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from 'multer';
 import { editFileName, imageFileFilter } from "src/users/file-upload.utils";
-import { async } from "rxjs/internal/scheduler/async";
 
 @Controller("produits")
 export class ProduitsController {
-  constructor(private produitsService: ProduitsService) {}
+  constructor(private produitsService: ProduitsService) { }
 
   @Get()
-    public async getAllProduits() {
-        const produits = await this.produitsService.findAll();
-        return { produits, total: produits.length};
-    }
+  public async getAllProduits() {
+    const produits = await this.produitsService.findAll();
+    return { produits, total: produits.length };
+  }
 
-    @Get('get10LastProduits')
-    public async get10LastProduits() {
-        const produits = await this.produitsService.get10LastProduits();
+    @Get('getLastProduits')
+    public async getLastProduits() {
+        const produits = await this.produitsService.getLastProduits();
         return { produits, total: produits.length};
     }
 
@@ -50,13 +49,13 @@ export class ProduitsController {
         return produits;
     }
 
-    @Get('/:id')
-    public async getProduit(@Param() param){
-        const produits = await this.produitsService.findById(param.id);
-        return produits;
-    }
+  @Get('/:id')
+  public async getProduit(@Param() param) {
+    const produits = await this.produitsService.findById(param.id);
+    return produits;
+  }
 
-    @Get('/getImage/:imgpath')
+  @Get('/getImage/:imgpath')
     public async getImage(@Param('imgpath') images, @Res() res) {
     return res.sendFile(images, { root: "./uploads/produits"}, err => {
         if(err){
@@ -130,7 +129,6 @@ export class ProduitsController {
         //   detail_physique["poids"] = body.poids;
         //   detail_physique["longueur"] = body.longueur;
           
-        
         //}else{
           // console.log("n'existe pas");
           const produit = await this.produitsService.findById(param.id);
@@ -147,7 +145,6 @@ export class ProduitsController {
           
           prix["prix"] = body.prix==null ? produit.prix['prix'] : body.prix;
           prix["prix_promotion"] = body.prix_promotion==null ? produit.prix['prix_promotion'] : body.prix_promotion;
-
          
           //}        
 

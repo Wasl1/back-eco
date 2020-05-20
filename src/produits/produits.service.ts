@@ -20,7 +20,7 @@ export class ProduitsService {
         return await this.produitsModel.findById(ID).exec();
     }
 
-    async get10LastProduits(): Promise<ProduitsInterface[]> {
+    async getLastProduits(): Promise<ProduitsInterface[]> {
         return await this.produitsModel.find().sort('-_id').limit(10).exec();
     }
 
