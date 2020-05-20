@@ -20,8 +20,20 @@ export class ProduitsService {
         return await this.produitsModel.findById(ID).exec();
     }
 
-    async getLastProduits(): Promise<ProduitsInterface[]> {
+    async get10LastProduits(): Promise<ProduitsInterface[]> {
         return await this.produitsModel.find().sort('-_id').limit(10).exec();
+    }
+
+    async getProduitsCustomised(page: number): Promise<ProduitsInterface[]> {
+        return await this.produitsModel.find({}, null, {limit: 20, skip: page}).sort('-_id').exec();
+    }
+
+    async getUserWhoVoteProduit(id_produits: number) {
+        return await this.produitsModel.findById(id_produits).populate('vote').exec();
+    }
+
+    async getUserWhoFavoriteProduit(id_produits: number) {
+        return await this.produitsModel.findById(id_produits).populate('favoris').exec();
     }
 
     async create(produitsInterface: any) {
@@ -109,7 +121,7 @@ export class ProduitsService {
         }
     }
 
-    async deleteMany(id_produits: any): Promise<string>{
+    async deleteMultiple(id_produits: any): Promise<string>{
         await this.produitsModel.deleteMany({_id: {$in: id_produits}}).exec();
         return 'Produits supprimés';
     }

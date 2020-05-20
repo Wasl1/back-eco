@@ -1,9 +1,10 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Put, UploadedFile, Delete, Res, BadRequestException, HttpException, HttpStatus } from "@nestjs/common";
+import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Put, UploadedFile, Delete, Res, BadRequestException, HttpException, HttpStatus, ParseIntPipe } from "@nestjs/common";
 import { ProduitsService } from "./produits.service";
 import { ProduitsDto } from "./dto/produits.dto";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from 'multer';
 import { editFileName, imageFileFilter } from "src/users/file-upload.utils";
+import { async } from "rxjs/internal/scheduler/async";
 
 @Controller("produits")
 export class ProduitsController {
@@ -15,10 +16,31 @@ export class ProduitsController {
         return { produits, total: produits.length};
     }
 
-    @Get('getLastProduits')
-    public async getLastProduits() {
-        const produits = await this.produitsService.getLastProduits();
+    @Get('get10LastProduits')
+    public async get10LastProduits() {
+        const produits = await this.produitsService.get10LastProduits();
         return { produits, total: produits.length};
+    }
+
+    @Get('getProduitsCustomised/:page')
+    public async getProduitsCustomised(@Param('page', new ParseIntPipe()) page: number) {
+      page = page - 1;
+      const produits = await this.produitsService.getProduitsCustomised(page);
+      return { produits, total: produits.length};
+    }
+
+    @Get('getUserWhoVoteProduit/:id_produits')
+    public async getUserWhoVoteProduit(@Param() param){
+      const produit = await this.produitsService.getUserWhoVoteProduit(param.id_produits);
+      let user = produit.vote;
+      return {user, total : user.length};
+    }
+
+    @Get('getUserWhoFavoriteProduit/:id_produits')
+    public async getUserWhoFavoriteProduit(@Param() param){
+      const produit = await this.produitsService.getUserWhoFavoriteProduit(param.id_produits);
+      let user = produit.favoris;
+      return {user, total : user.length};
     }
 
     @Get('find')
@@ -38,7 +60,7 @@ export class ProduitsController {
     public async getImage(@Param('imgpath') images, @Res() res) {
     return res.sendFile(images, { root: "./uploads/produits"}, err => {
         if(err){
-          return res.sendFile("default.png", { root: "./uploads/produits"});
+          return res.sendFile("error.png", { root: "./uploads/produits"});
         }
       });
     }
@@ -80,11 +102,13 @@ export class ProduitsController {
 
     data["titre"] = addProduitsDto.titre;
     data["description"] = addProduitsDto.description;
+    data["marque"] = addProduitsDto.marque;
     data["categorie"] = addProduitsDto.categorie;
     data["quantite"] = addProduitsDto.quantite;
     data["images"] = addProduitsDto.images;
     data["detail_fabrication"] = detail_fabrication;
     data["detail_physique"] = detail_physique;
+    data["etat"] = addProduitsDto.etat;
     data["prix"] = prix;
     data["garantie"] = addProduitsDto.garantie;
     data["provenance"] = addProduitsDto.provenance;
@@ -98,7 +122,6 @@ export class ProduitsController {
       let detail_fabrication = {};
       let detail_physique = {};
       let prix = {};
-      let vote = {};
 
         // if(body.numero_model ){
         //   console.log("exist");
@@ -121,11 +144,11 @@ export class ProduitsController {
           detail_physique["largeur"] = body.largeur==null ? produit.detail_physique['largeur'] : body.largeur;
           detail_physique["taille"] = body.taille==null ? produit.detail_physique['taille'] : body.taille;
           detail_physique["couleur"] = body.couleur==null ? produit.detail_physique['couleur'] : body.couleur;
+          
           prix["prix"] = body.prix==null ? produit.prix['prix'] : body.prix;
           prix["prix_promotion"] = body.prix_promotion==null ? produit.prix['prix_promotion'] : body.prix_promotion;
 
-          vote["id_user"] = body.vote==null ? produit.prix['id_user'] : body.vote;
-
+         
           //}        
 
         body["detail_fabrication"] = detail_fabrication;
@@ -227,10 +250,23 @@ export class ProduitsController {
         return this.produitsService.delete(param.id);
     }
 
-    @Delete('/delete/deleteManyProduits')
+    @Delete('/delete/deleteMultipleProduits')
     public async deleteManyProduits(@Body() body){
       let id_produits = [];
       id_produits = body.id_produits;
-      return this.produitsService.deleteMany(id_produits);
+      var j = id_produits.length;
+
+      for(var i = 0; i < j; i++){        
+        let produit = await this.produitsService.findById(id_produits[i]);
+        let images = produit['images'];
+        var image_nombres = images.length;
+        const fs = require('fs-extra');
+        console.log("images", images);
+        for(var a = 0; a < image_nombres; a++){
+          fs.remove("./uploads/produits/"+images[a]+"", err => {
+          })
+        }        
+      }
+      return this.produitsService.deleteMultiple(id_produits);
     }
 }

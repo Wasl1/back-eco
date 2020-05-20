@@ -1,12 +1,15 @@
 import * as mongoose from 'mongoose';
 
-
 export const ProduitsSchema = new mongoose.Schema({
     titre: {
         type: String,
         required: true
     },
     description: {
+        type: String,
+        required: true
+    },
+    marque: {
         type: String,
         required: true
     },
@@ -18,9 +21,11 @@ export const ProduitsSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    vote: {
-        type: []
-    },
+    vote: [
+        {
+            type: mongoose.Schema.Types.ObjectId, ref:'User'
+        }
+    ],
     images: {
         type: [],
         required: true
@@ -32,6 +37,10 @@ export const ProduitsSchema = new mongoose.Schema({
     detail_physique: {
         type: Object,
         required: true
+    },
+    etat: {
+        type: String,
+        default: "sandbox"
     },
     prix: {
         type: Object,
@@ -49,7 +58,9 @@ export const ProduitsSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    favoris: {
-        type: [],
-    }
+    favoris: [
+        {
+            type: mongoose.Schema.Types.ObjectId, ref:'User'
+        }
+    ]
 });

@@ -1,6 +1,7 @@
 export class  ProduitsDto {
     readonly titre: string;
     readonly description: string;
+    readonly marque: string;
     readonly categorie: string;
     readonly quantite: number;
     vote: any;
@@ -13,6 +14,7 @@ export class  ProduitsDto {
     readonly largeur: number;
     readonly taille: string;
     readonly couleur: string;
+    readonly etat: string;
     readonly prix: number;
     readonly prix_promotion: number;
     readonly garantie : number;
