@@ -1,7 +1,6 @@
 import { Document } from 'mongoose';
-
 export interface ProduitsInterface extends Document {
-    readonly titre: string;
+     titre: string;
     readonly description: string;
     readonly marque: string;
     readonly categorie: string;
@@ -16,4 +15,5 @@ export interface ProduitsInterface extends Document {
     readonly vu : number;
     readonly provenance : string;
     readonly favoris: any;
+    readonly historique: any;
 }

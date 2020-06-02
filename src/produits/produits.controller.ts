@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Put, UploadedFile, Delete, Res, BadRequestException, HttpException, HttpStatus, ParseIntPipe } from "@nestjs/common";
+import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Put, UploadedFile, Delete, Res, BadRequestException, HttpException, HttpStatus, ParseIntPipe, Query } from "@nestjs/common";
 import { ProduitsService } from "./produits.service";
 import { ProduitsDto } from "./dto/produits.dto";
 import { FilesInterceptor } from "@nestjs/platform-express";
@@ -9,60 +9,73 @@ import { editFileName, imageFileFilter } from "src/users/file-upload.utils";
 export class ProduitsController {
   constructor(private produitsService: ProduitsService) { }
 
-  @Get()
-  public async getAllProduits() {
-    const produits = await this.produitsService.findAll();
-    return { produits, total: produits.length };
+@Get()
+public async getAllProduits() {
+  const produits = await this.produitsService.findAll();
+  return { produits, total: produits.length };
+}
+
+@Get('getLastProduits')
+public async getLastProduits() {
+  const produits = await this.produitsService.getLastProduits();
+  return { produits, total: produits.length};
+}
+
+@Get('getProduitsCustomised/:page')
+public async getProduitsCustomised(@Param('page', new ParseIntPipe()) page: number) {
+  page = page - 1;
+  const produits = await this.produitsService.getProduitsCustomised(page);
+  return { produits, total: produits.length};
+}
+
+@Get('getUserWhoVoteProduit/:id_produits')
+public async getUserWhoVoteProduit(@Param() param){
+  const produit = await this.produitsService.getUserWhoVoteProduit(param.id_produits);
+  let user = produit.vote;
+  return {user, total : user.length};
+}
+
+@Get('getUserWhoFavoriteProduit/:id_produits')
+public async getUserWhoFavoriteProduit(@Param() param){
+  const produit = await this.produitsService.getUserWhoFavoriteProduit(param.id_produits);
+  let user = produit.favoris;
+  return {user, total : user.length};
+}
+
+@Get('find')
+public async findProduit(@Body() body) {
+  const queryCondition = body;
+  const produits = await this.produitsService.find(queryCondition);
+  return produits;
+}
+
+@Get('/:id')
+public async getProduit(@Param() param) {
+  const produits = await this.produitsService.findById(param.id);
+  return produits;
+}
+
+@Get('/getImage/:imgpath')
+public async getImage(@Param('imgpath') images, @Res() res) {
+  return res.sendFile(images, { root: "./uploads/produits"}, err => {
+  if(err){
+     return res.sendFile("error.png", { root: "./uploads/produits"});
+    }
+  });
+}
+
+  @Get('/recherche/search')
+  public async esSearch(@Query('q') q: string){
+    const results = await this.produitsService.search(q);
+    return results;
   }
 
-    @Get('getLastProduits')
-    public async getLastProduits() {
-        const produits = await this.produitsService.getLastProduits();
-        return { produits, total: produits.length};
-    }
-
-    @Get('getProduitsCustomised/:page')
-    public async getProduitsCustomised(@Param('page', new ParseIntPipe()) page: number) {
-      page = page - 1;
-      const produits = await this.produitsService.getProduitsCustomised(page);
-      return { produits, total: produits.length};
-    }
-
-    @Get('getUserWhoVoteProduit/:id_produits')
-    public async getUserWhoVoteProduit(@Param() param){
-      const produit = await this.produitsService.getUserWhoVoteProduit(param.id_produits);
-      let user = produit.vote;
-      return {user, total : user.length};
-    }
-
-    @Get('getUserWhoFavoriteProduit/:id_produits')
-    public async getUserWhoFavoriteProduit(@Param() param){
-      const produit = await this.produitsService.getUserWhoFavoriteProduit(param.id_produits);
-      let user = produit.favoris;
-      return {user, total : user.length};
-    }
-
-    @Get('find')
-    public async findProduit(@Body() body) {
-        const queryCondition = body;
-        const produits = await this.produitsService.find(queryCondition);
-        return produits;
-    }
-
-  @Get('/:id')
-  public async getProduit(@Param() param) {
-    const produits = await this.produitsService.findById(param.id);
-    return produits;
+  @Get('/recherche/searchTitre')
+  public async esSearch1(@Query('q') q: string){
+    const results = await this.produitsService.searchTitre(q);
+    return results;
   }
 
-  @Get('/getImage/:imgpath')
-    public async getImage(@Param('imgpath') images, @Res() res) {
-    return res.sendFile(images, { root: "./uploads/produits"}, err => {
-        if(err){
-          return res.sendFile("error.png", { root: "./uploads/produits"});
-        }
-      });
-    }
 
   @Post()
   @UseInterceptors(
@@ -86,6 +99,8 @@ export class ProduitsController {
     let detail_fabrication = {};
     let detail_physique = {};
     let prix = {};
+    let historique = [];
+    let creer = {};
 
     detail_fabrication["numero_model"] = addProduitsDto.numero_model;
     detail_fabrication["date_sortie"] = addProduitsDto.date_sortie;
@@ -96,8 +111,13 @@ export class ProduitsController {
     detail_physique["taille"] = addProduitsDto.taille;
     detail_physique["couleur"] = addProduitsDto.couleur;
     
-    prix["prix"] = addProduitsDto.prix;
+    prix["prix_normal"] = addProduitsDto.prix_normal;
     prix["prix_promotion"] = addProduitsDto.prix_promotion;
+
+    creer["createur"] = addProduitsDto.createur;
+    creer["date_creation"] = addProduitsDto.date_creation;
+
+    historique.push({"creer": creer});
 
     data["titre"] = addProduitsDto.titre;
     data["description"] = addProduitsDto.description;
@@ -111,12 +131,31 @@ export class ProduitsController {
     data["prix"] = prix;
     data["garantie"] = addProduitsDto.garantie;
     data["provenance"] = addProduitsDto.provenance;
+    data["historique"] = historique;
     
     return await this.produitsService.create(data);
   }
 
   @Put('/:id')
-    public async updateProduits(@Param() param, @Body() body){ 
+    public async updateProduits(@Param() param, @Body() body, @Body() vraiBody){ 
+      const produit = await this.produitsService.findById(param.id);
+    
+      let champs = {};
+      let modifier = {};
+      let modificationArray = [];
+      
+      let key = Object.keys(vraiBody);
+      for(let i = 0; i < key.length; i++){
+        let OldValue = produit[key[i]];
+        console.log(OldValue);
+        champs[key[i]+"Old"] = (produit[key[i]] === undefined && (key[i] == "numero_model" || key[i] == "date_sortie"))  ? produit.detail_fabrication[key[i]] : (produit[key[i]] === undefined && (key[i] == "poids" || key[i] == "longueur" || key[i] == "largeur" || key[i] == "couleur" || key[i] == "taille")) ? produit.detail_physique[key[i]] : (produit[key[i]] === undefined && (key[i] == "prix_normal" || key[i] == "prix_promotion"))  ? produit.prix[key[i]] : produit[key[i]];
+        champs[key[i]+"New"] = vraiBody[key[i]];
+      }
+
+      modifier["modificateur"] = vraiBody.modificateur;
+      modifier["date_modification"] = vraiBody.date_modification;
+      modifier["champs"] = champs;
+      modificationArray.push(modifier);
       
       let detail_fabrication = {};
       let detail_physique = {};
@@ -131,8 +170,7 @@ export class ProduitsController {
           
         //}else{
           // console.log("n'existe pas");
-          const produit = await this.produitsService.findById(param.id);
-          console.log("produit", produit);
+          
           // detail_fabrication["date_sortie"] = body.date_sortie != null ? body.date_sortie : 'rakoto';
           detail_fabrication["numero_model"] = body.numero_model==null ? produit.detail_fabrication['numero_model'] : body.numero_model;
           detail_fabrication["date_sortie"] = body.date_sortie ==null ? produit.detail_fabrication['date_sortie'] : body.date_sortie;
@@ -143,7 +181,7 @@ export class ProduitsController {
           detail_physique["taille"] = body.taille==null ? produit.detail_physique['taille'] : body.taille;
           detail_physique["couleur"] = body.couleur==null ? produit.detail_physique['couleur'] : body.couleur;
           
-          prix["prix"] = body.prix==null ? produit.prix['prix'] : body.prix;
+          prix["prix_normal"] = body.prix_normal==null ? produit.prix['prix_normal'] : body.prix_normal;
           prix["prix_promotion"] = body.prix_promotion==null ? produit.prix['prix_promotion'] : body.prix_promotion;
          
           //}        
@@ -151,9 +189,33 @@ export class ProduitsController {
         body["detail_fabrication"] = detail_fabrication;
         body["detail_physique"] = detail_physique;
         body["prix"] = prix;
-        
-        const produits = await this.produitsService.update(param.id, body);
+          
+        const produits = await this.produitsService.update(param.id, body).then(()=>{
+            return this.produitsService.updateModifier(param.id, modificationArray);
+        });
         return produits;
+    }
+
+    @Put('/update/lancement/:id')
+    public async updateLancement(@Param() param, @Body() body){
+      let lancer = {};
+
+      lancer["lanceur"] = body.lanceur;
+      lancer["date_lancement"] = body.date_lancement;
+      
+      const produits = await this.produitsService.updateLancer(param.id, lancer);
+      return produits;
+    }
+
+    @Put('/update/archive/:id')
+    public async updateArchive(@Param() param, @Body() body){
+      let archive = {};
+
+      archive["archiveur"] = body.archiveur;
+      archive["date_archive"] = body.date_archive;
+      
+      const produits = await this.produitsService.updateArchiver(param.id, archive);
+      return produits;
     }
 
     @Put('/update/imagesAdd/:id')
@@ -233,6 +295,23 @@ export class ProduitsController {
       return produits;
     }
 
+    @Put('/update/updateMultipleEtat')
+    public async updateMultipleEtat(@Body() body){
+      let id_produits = [];
+      id_produits = body.id_produits;
+      let etat = body.etat;
+      return this.produitsService.updateMultipleEtat(id_produits, etat);
+    }
+
+    @Put('/update/decrementQuantite/:id')
+    public async decrementQuantite(@Param() param, @Body() body){
+      let qteProduit = body.quantite;
+      qteProduit = -Math.abs(qteProduit);
+      
+      const produits = await this.produitsService.decrementQuantite(param.id, qteProduit);
+      return produits;
+    }
+
     @Delete('/:id')
     public async deleteProduits(@Param() param) {
         const produit = await this.produitsService.findById(param.id);
@@ -251,19 +330,20 @@ export class ProduitsController {
     public async deleteManyProduits(@Body() body){
       let id_produits = [];
       id_produits = body.id_produits;
-      var j = id_produits.length;
+      let j = id_produits.length;
 
       for(var i = 0; i < j; i++){        
         let produit = await this.produitsService.findById(id_produits[i]);
         let images = produit['images'];
-        var image_nombres = images.length;
+        let image_nombres = images.length;
         const fs = require('fs-extra');
         console.log("images", images);
-        for(var a = 0; a < image_nombres; a++){
+        for(let a = 0; a < image_nombres; a++){
           fs.remove("./uploads/produits/"+images[a]+"", err => {
           })
         }        
       }
       return this.produitsService.deleteMultiple(id_produits);
     }
+
 }

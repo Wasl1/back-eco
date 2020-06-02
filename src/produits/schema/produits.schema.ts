@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+let mexp = require('mongoose-elasticsearch-xp');
 
 export const ProduitsSchema = new mongoose.Schema({
     titre: {
@@ -6,11 +7,11 @@ export const ProduitsSchema = new mongoose.Schema({
         required: true
     },
     description: {
-        type: String,
+        type: String, 
         required: true
     },
     marque: {
-        type: String,
+        type: String, 
         required: true
     },
     categorie: {
@@ -62,5 +63,12 @@ export const ProduitsSchema = new mongoose.Schema({
         {
             type: mongoose.Schema.Types.ObjectId, ref:'User'
         }
+    ],
+    historique: [
+        
     ]
 });
+
+ProduitsSchema.plugin(mexp);
+
+

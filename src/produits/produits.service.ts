@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ProduitsInterface } from './interface/produits.interface';
@@ -48,12 +48,32 @@ export class ProduitsService {
             debug('produit introuvable');
         }
 
-        await this.produitsModel.findByIdAndUpdate(ID, newValue).exec();
-        return await this.produitsModel.findById(ID).exec();
+        return await this.produitsModel.findByIdAndUpdate(ID, newValue, {new: true}).exec();
     }
 
-    async updateAddImage(ID: number, id_user: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {images: id_user}}, {safe: true, upsert: true}, err =>{
+    async updateLancer(ID: number, lancement:any){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet:{historique: {lancer: lancement}}}, {safe: true, upsert:true}, err =>{
+            if(err){console.log(err);
+            }
+        })        
+    }
+
+    async updateArchiver(ID: number, archive:any){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet:{historique: {archiver: archive}}}, {safe: true, upsert:true}, err =>{
+            if(err){console.log(err);
+            }
+        })        
+    }
+
+    async updateModifier(ID: number, modification:any){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {"historique.$[].modifier": modification}}, {safe: true, upsert:true}, err =>{
+            if(err){console.log(err);
+            }
+        })        
+    }
+
+    async updateAddImage(ID: number, pic_name: any){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {images: pic_name}}, {safe: true, upsert: true}, err =>{
             if(err){console.log(err);
             }else{
                 console.log("Nouvelles images ajoutées");
@@ -61,8 +81,8 @@ export class ProduitsService {
         }).exec();
     }
 
-    async updateDeleteImage(ID: number, id_user: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {"$in": id_user}}}, {safe: true, multi: true}, err =>{
+    async updateDeleteImage(ID: number, pic_name: any){
+        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {"$in": pic_name}}}, {safe: true, multi: true}, err =>{
             if(err){console.log(err);
             }else{
                 console.log("Images supprimées");
@@ -110,6 +130,14 @@ export class ProduitsService {
         return await this.produitsModel.findByIdAndUpdate(ID, {$inc : {'vu': 1}}).exec();
     }
 
+    async updateMultipleEtat(id_produits: any, etat: ProduitsInterface){
+        return await this.produitsModel.updateMany({_id: {$in: id_produits}},{'etat': etat},{multi: true, upsert: true});
+    }
+
+    async decrementQuantite(ID: number, qteProduit: number): Promise<ProduitsInterface>{
+        return await this.produitsModel.findByIdAndUpdate(ID, {$inc : {'quantite': qteProduit}}).exec();
+    }
+
     async delete(ID: number): Promise<string> {
         try {
             await this.produitsModel.findByIdAndRemove(ID).exec();
@@ -124,5 +152,21 @@ export class ProduitsService {
     async deleteMultiple(id_produits: any): Promise<string>{
         await this.produitsModel.deleteMany({_id: {$in: id_produits}}).exec();
         return 'Produits supprimés';
+    }
+
+    async search(query: string){
+        return await this.produitsModel.esSearch({ query_string: { query: "*"+query+"*" }})
+        .then(res => res.hits.hits.map(hit => {
+            return hit['_source'];
+        }))
+        .catch(err => { throw new HttpException(err, 500); });
+    }
+
+    async searchTitre(query: string){
+        return await this.produitsModel.esSearch({ bool: { must: { wildcard: {titre: "*"+query+"*"} } }})
+        .then(res => res.hits.hits.map(hit => {
+            return hit['_source'];
+        }))
+        .catch(err => { throw new HttpException(err, 500); });
     }
 }
