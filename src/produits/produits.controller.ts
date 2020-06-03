@@ -4,10 +4,11 @@ import { ProduitsDto } from "./dto/produits.dto";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from 'multer';
 import { editFileName, imageFileFilter } from "src/users/file-upload.utils";
+import { query } from "express";
 
 @Controller("produits")
 export class ProduitsController {
-  constructor(private produitsService: ProduitsService) { }
+  constructor(private produitsService: ProduitsService) {}
 
 @Get()
 public async getAllProduits() {
@@ -65,14 +66,14 @@ public async getImage(@Param('imgpath') images, @Res() res) {
 }
 
   @Get('/recherche/search')
-  public async esSearch(@Query('q') q: string){
-    const results = await this.produitsService.search(q);
+  public async esSearch(@Query('query') query: string){   
+    const results = await this.produitsService.search(query);
     return results;
   }
 
   @Get('/recherche/searchTitre')
-  public async esSearch1(@Query('q') q: string){
-    const results = await this.produitsService.searchTitre(q);
+  public async esSearchTitre(@Query('query') query: string){
+    const results = await this.produitsService.searchTitre(query);
     return results;
   }
 
@@ -305,11 +306,18 @@ public async getImage(@Param('imgpath') images, @Res() res) {
 
     @Put('/update/decrementQuantite/:id')
     public async decrementQuantite(@Param() param, @Body() body){
+      const produit = await this.produitsService.findById(param.id);
+
       let qteProduit = body.quantite;
-      qteProduit = -Math.abs(qteProduit);
       
-      const produits = await this.produitsService.decrementQuantite(param.id, qteProduit);
-      return produits;
+      if(produit.quantite > qteProduit){
+        qteProduit = -Math.abs(qteProduit);
+      
+        const produits = await this.produitsService.decrementQuantite(param.id, qteProduit);
+        return produits;
+      } else console.log("Stock epuisé");
+      
+      
     }
 
     @Delete('/:id')

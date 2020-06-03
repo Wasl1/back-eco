@@ -32,4 +32,9 @@ export class  ProduitsDto {
     readonly archiveur: string;
     readonly date_archive;
 
+    readonly id_user: mongoose.Schema.Types.ObjectId;
+    readonly idSearch: mongoose.Schema.Types.ObjectId;
+    readonly keywords: string;
+    readonly date_recherche: Date;
+
 }

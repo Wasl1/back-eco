@@ -7,7 +7,7 @@ import { editFileName, imageFileFilter } from './file-upload.utils';
 import { diskStorage } from 'multer';
 @Controller('users')
 export class UsersController {
-    constructor(private usersService: UsersService) { }
+    constructor(private usersService: UsersService) {}
 
     @Get()
     public async getAllUsers() {
