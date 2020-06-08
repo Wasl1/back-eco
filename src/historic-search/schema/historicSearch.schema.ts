@@ -1,16 +1,19 @@
 import * as mongoose from 'mongoose';
+let mexp = require('mongoose-elasticsearch-xp');
+
 
 export const historicSearchSchema = new mongoose.Schema({
-    id_user : { 
-        type : mongoose.Schema.Types.ObjectId, ref:'User'
+    user : { 
+        type : mongoose.Schema.Types.ObjectId,
+        ref:'User',
+        es_indexed: true,
     },
     userSearch : [
         {
             idSearch: {
                 type: mongoose.Schema.Types.ObjectId,
-                index: true,
-                required: true,
-                auto: true
+                auto: true,
+                _id: {type: false},
             },            
             keywords: {
                 type: String, 
@@ -18,8 +21,11 @@ export const historicSearchSchema = new mongoose.Schema({
             },
             date: {
                 type: Date,
-                default: Date.now
+                default: Date.now,
+                es_indexed: true
             }
         }
     ]
 });
+
+historicSearchSchema.plugin(mexp);

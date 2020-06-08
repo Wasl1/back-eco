@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
+let mexp = require('mongoose-elasticsearch-xp');
 
 export const UsersSchema = new mongoose.Schema({
     email: {
@@ -13,8 +14,7 @@ export const UsersSchema = new mongoose.Schema({
         required: true
     },
     password: {
-        type: String,
-        required: true
+        type: String
     },
     nom: {
         type: String,
@@ -40,10 +40,10 @@ export const UsersSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: "defaultpic.png",
-        required: true
+        default: "defaultpic.png"
     },
 });
+UsersSchema.plugin(mexp);
 
 // NOTE: Arrow functions are not used here as we do not want to use lexical scope for 'this'
 UsersSchema.pre('save', function(next){

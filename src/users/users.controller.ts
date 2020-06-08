@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Put, UseInterceptors, Param, UploadedFile, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Put, UseInterceptors, Param, UploadedFile, Delete, Query } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
@@ -26,6 +26,12 @@ export class UsersController {
     public async getUser(@Param() param){
         const user = await this.usersService.findById(param.id);
         return user;
+    }
+
+    @Get('/recherche/searchUser')
+    public async esSearchUser(@Query('query') query: string){   
+        const results = await this.usersService.userSearch(query);
+        return results;
     }
     
     @Post() 

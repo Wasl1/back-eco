@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 @Module({
   imports: [MongooseModule.forFeature([{name: 'historicSearch', schema: historicSearchSchema}])],
   providers: [HistoricSearchService],
-  controllers: [HistoricSearchController]
+  controllers: [HistoricSearchController],
+  exports: [HistoricSearchService]
 })
 export class HistoricSearchModule {}

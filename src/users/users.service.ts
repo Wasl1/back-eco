@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Users } from './interface/users.interface';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -37,7 +37,7 @@ export class UsersService {
             debug('user not found');
         }
 
-        await this.userModel.findByIdAndUpdate(ID, newValue).exec();
+        await this.userModel.findByIdAndUpdate(ID, newValue, {new: true}).exec();
         return await this.userModel.findById(ID).exec();
     }
 
@@ -50,5 +50,13 @@ export class UsersService {
             debug(err);
             return 'The user could not be deleted';
         }
+    }
+
+    async userSearch(query: string){
+        return await this.userModel.esSearch({ query_string: { query: "*"+query+"*" }})
+        .then(res => res.hits.hits.map(hit => {
+            return hit['_source'];
+        }))
+        .catch(err => { throw new HttpException(err, 500); });
     }
 }

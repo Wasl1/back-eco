@@ -5,10 +5,11 @@ import { FilesInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from 'multer';
 import { editFileName, imageFileFilter } from "src/users/file-upload.utils";
 import { query } from "express";
+import { HistoricSearchService } from "src/historic-search/historic-search.service";
 
 @Controller("produits")
 export class ProduitsController {
-  constructor(private produitsService: ProduitsService) {}
+  constructor(private produitsService: ProduitsService, private historicSeachService: HistoricSearchService ) {}
 
 @Get()
 public async getAllProduits() {
@@ -66,8 +67,18 @@ public async getImage(@Param('imgpath') images, @Res() res) {
 }
 
   @Get('/recherche/search')
-  public async esSearch(@Query('query') query: string){   
-    const results = await this.produitsService.search(query);
+  public async esSearch(@Query('keywords') keywords: string, @Query('id_user') id_user: number){
+    let userSearch = {};
+    let historicSearch= {};
+
+    userSearch["keywords"] = keywords;
+    historicSearch["keywords"] = keywords;
+    historicSearch["user"] = id_user;
+    historicSearch["userSearch"] = userSearch;    
+      
+    const results = await this.historicSeachService.addUserSearch(id_user, historicSearch).then(()=>{
+      return this.produitsService.search(keywords);
+    });
     return results;
   }
 
