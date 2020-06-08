@@ -4,8 +4,11 @@ import { ProduitsDto } from "./dto/produits.dto";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from 'multer';
 import { editFileName, imageFileFilter } from "src/users/file-upload.utils";
-import { query } from "express";
 import { HistoricSearchService } from "src/historic-search/historic-search.service";
+
+import * as fs from 'fs';
+import * as PdfPrinter from 'pdfmake';
+import * as uuid from 'uuid/v4';
 
 @Controller("produits")
 export class ProduitsController {
@@ -88,6 +91,50 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     return results;
   }
 
+  @Get('/PdfGen/generatePDF')
+  generatePDF() {
+    const fonts = {
+      Helvetica: {
+        normal: 'Helvetica',
+        bold: 'Helvetica-Bold',
+        italics: 'Helvetica-Oblique',
+        bolditalics: 'Helvetica-BoldOblique'
+      }
+    };
+    const printer = new PdfPrinter(fonts);
+ 
+    const docDefinition = {
+      content: [
+        { text: 'Heading', fontSize: 25},
+        {
+          layout: 'lightHorizontalLines', // optional
+          table: {
+            headerRows: 1,
+            widths: [ '*', 'auto', 100, '*' ],
+ 
+            body: [
+              [ 'First', 'Second', 'Third', 'The last one' ],
+              [ 'Value 1', 'Value 2', 'Value 3', 'Value 4' ],
+              [ 'Val 1','Val 2', 'Val 3', 'Val 4' ]
+            ],
+          },
+        },
+        {text: 'google', link: 'http://google.com', pageBreak: 'before',},
+        { qr: 'text in QR', foreground: 'green', background: 'white' },
+      ],
+      defaultStyle: {
+        font: 'Helvetica'
+      }
+    };
+ 
+    const options = {
+    }
+    let file_name = 'PDF' + uuid() + '.pdf';
+    const pdfDoc = printer.createPdfKitDocument(docDefinition, options);
+    pdfDoc.pipe(fs.createWriteStream(file_name));
+    pdfDoc.end();
+    return {'file_name': file_name};
+  }
 
   @Post()
   @UseInterceptors(

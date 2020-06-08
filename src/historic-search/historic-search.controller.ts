@@ -7,16 +7,16 @@ export class HistoricSearchController {
     constructor(private historicSeachService: HistoricSearchService) {}
 
     @Get()
-    public async getAllHistoric() {
-        const historic = await this.historicSeachService.findAll();
-        return { historic, total: historic.length };
+    public async getAllHistorique() {
+        const historique = await this.historicSeachService.findAll();
+        return { historique, total: historique.length };
     }
 
     @Get('find')
     public async findHistorique(@Body() body) {
         const queryCondition = body;
-        const historic = await this.historicSeachService.find(queryCondition);
-        return historic;
+        const historique = await this.historicSeachService.find(queryCondition);
+        return historique;
     }
 
     @Get('/recherche/esSearchHistorique')
@@ -25,29 +25,9 @@ export class HistoricSearchController {
         return results;
     }
 
-    @Post() 
-    async create(@Body() body: historicSearchDto) {
-        let userSearch = {};
-        userSearch["keywords"] = body.keywords;
-        body["userSearch"] = userSearch;
-        return await this.historicSeachService.create(body);
-    }
-
-    @Put('/update/addUserSearch')
-    public async updateArchive(@Body() body){
-      let userSearch = {};
-
-      userSearch["keywords"] = body.keywords;
-      body["userSearch"] = userSearch;
-      console.log("body",body);
-      
-      
-      const search = await this.historicSeachService.addUserSearch(body.user, body);
-      return search;
-    }
 
     @Delete('/:id')
-    public async deleteProduits(@Param() param) {
+    public async deleteHistorique(@Param() param) {
         return this.historicSeachService.delete(param.id);
     }
 }

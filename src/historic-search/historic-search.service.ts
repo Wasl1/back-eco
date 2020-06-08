@@ -12,9 +12,8 @@ export class HistoricSearchService {
         return await this.historicSearchModel.find().sort('-_id').exec();
     }
 
-    async create(historicSearchInterface: any) {
-        const createdTodo = new this.historicSearchModel(historicSearchInterface);
-        return await createdTodo.save();  
+    async find(options: object): Promise<historicSearchInterface> {
+        return await this.historicSearchModel.find(options).exec();
     }
 
     async addUserSearch(id_user: number, userSearch:any){
@@ -33,10 +32,6 @@ export class HistoricSearchService {
             debug(err);
             return 'Impossible de faire la suppression';
         }
-    }
-
-    async find(options: object): Promise<historicSearchInterface> {
-        return await this.historicSearchModel.find(options).exec();
     }
 
     async EsSearchHistorique(query: string){
