@@ -1,6 +1,5 @@
 import { Controller, Post, Body, Get, Put, Param, Delete, Query } from '@nestjs/common';
 import { HistoricSearchService } from './historic-search.service';
-import { historicSearchDto } from './dto/historicSearch.dto';
 
 @Controller('historic-search')
 export class HistoricSearchController {

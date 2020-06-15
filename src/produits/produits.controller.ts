@@ -5,10 +5,7 @@ import { FilesInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from 'multer';
 import { editFileName, imageFileFilter } from "src/users/file-upload.utils";
 import { HistoricSearchService } from "src/historic-search/historic-search.service";
-
-import * as fs from 'fs';
 import * as PdfPrinter from 'pdfmake';
-import * as uuid from 'uuid/v4';
 
 @Controller("produits")
 export class ProduitsController {
@@ -91,8 +88,8 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     return results;
   }
 
-  @Get('/PdfGen/generatePDF')
-  generatePDF() {
+  @Get('/GenPdf/generatePDF')
+  public async generatePDF(@Body() body, @Res() res) {
     const fonts = {
       Helvetica: {
         normal: 'Helvetica',
@@ -105,35 +102,167 @@ public async getImage(@Param('imgpath') images, @Res() res) {
  
     const docDefinition = {
       content: [
-        { text: 'Heading', fontSize: 25},
         {
-          layout: 'lightHorizontalLines', // optional
-          table: {
-            headerRows: 1,
-            widths: [ '*', 'auto', 100, '*' ],
- 
-            body: [
-              [ 'First', 'Second', 'Third', 'The last one' ],
-              [ 'Value 1', 'Value 2', 'Value 3', 'Value 4' ],
-              [ 'Val 1','Val 2', 'Val 3', 'Val 4' ]
+          columns: [
+            {
+              image:
+                './uploads/logos/680.png',
+              width: 50,
+            },
+            [
+              {
+                text: '6587',
+                color: '#333333',
+                width: '*',
+                fontSize: 12,
+                alignment: 'right',
+                decoration: 'underline',
+                margin: [0, 0, 0, 15],
+              },
+              {
+                stack: [
+                  {
+                    columns: [
+                      {
+                        text: 'Date',
+                        color: '#aaaaab',
+                        bold: true,
+                        width: '*',
+                        fontSize: 12,
+                        alignment: 'right',
+                      },
+                      {
+                        text: '13 Juin 2020',
+                        color: '#333333',
+                        fontSize: 12,
+                        alignment: 'right',
+                        width: 100,
+                        decoration: 'underline',
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
-          },
+          ],
         },
-        {text: 'google', link: 'http://google.com', pageBreak: 'before',},
-        { qr: 'text in QR', foreground: 'green', background: 'white' },
+        {
+          columns: [
+            {
+              text: 'Pay to the \n Order of',
+              color: '#aaaaab',
+              bold: true,
+              fontSize: 14,
+              alignment: 'left',
+              margin: [0, 20, 0, 0],
+            },
+            {
+              text: '\n           MERIKA Wasselin             ',
+              color: '#333333',
+              fontSize: 12,
+              alignment: 'left',
+              decoration: 'underline',
+              margin: [0, 20, 0, 5],
+            },
+            {
+              text: '$',
+              color: '#aaaaab',
+              bold: true,
+              fontSize: 14,
+              alignment: 'right',
+              //          droit, bas]
+              margin: [0, 20, 0, 5],
+            },
+            {
+              text: '         1.000.000        ',
+              color: '#333333',
+              bold: true,
+              fontSize: 14,
+              alignment: 'right',
+              //          droit, bas]
+              margin: [0, 20, 0, 5],
+              decoration: 'underline',
+            },
+          ],
+        },
+        '\n',
+        {
+          columns: [
+            {
+              text: '                         ROA HETSY                  ',
+              color: '#333333',
+              fontSize: 12,
+              alignment: 'center',
+              margin: [10, 0, 10, 0],
+              decoration: 'underline',
+            },
+            {
+              text: 'Dollars',
+              bold: true,
+              color: '#aaaaab',
+              alignment: 'right',
+            }
+          ],
+        },
+        '\n\n',
+        {
+          columns: [
+            {
+              text: 'For',
+              color: '#aaaaab',
+              bold: true,
+              fontSize: 14,
+              alignment: 'left',
+              margin: [0, 20, 0, 5],
+            },
+            {
+              text: '     JOHN Franklin      ',
+              color: '#333333',
+              fontSize: 12,
+              alignment: 'left',
+              decoration: 'underline',
+              margin: [0, 20, 0, 5],
+            },
+            {
+              text: 'Signed',
+              color: '#aaaaab',
+              bold: true,
+              fontSize: 14,
+              alignment: 'right',
+              //gauche, haut, droit, bas]
+              margin: [0, 20, 100, 5],
+            }
+          ]
+        },
       ],
+      styles: {
+        notesTitle: {
+          fontSize: 10,
+          bold: true,
+          margin: [0, 50, 0, 3],
+        },
+        notesText: {
+          fontSize: 10,
+        },
+      },
       defaultStyle: {
-        font: 'Helvetica'
-      }
+        columnGap: 20,
+        font: 'Helvetica',
+      },
+    
     };
- 
-    const options = {
-    }
-    let file_name = 'PDF' + uuid() + '.pdf';
-    const pdfDoc = printer.createPdfKitDocument(docDefinition, options);
-    pdfDoc.pipe(fs.createWriteStream(file_name));
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+    let chunks = [];
+    pdfDoc.on('data', (chunk) => {chunks.push(chunk);});
+    pdfDoc.on('end', () =>{
+      let pdfData = Buffer.concat(chunks);
+      res.writeHead(200, {
+        'Content-Type': 'application/pdf',
+        'Content-disposition': 'attachment;filename=eco.pdf'
+      });
+      res.end(pdfData);
+    });
     pdfDoc.end();
-    return {'file_name': file_name};
   }
 
   @Post()
@@ -387,7 +516,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         for(var i = 0; i < j; i++){
           fs.remove("./uploads/produits/"+images[i]+"", err => {
           })
-          console.log("./uploads/produits/"+images[i]+""); 
         }
         return this.produitsService.delete(param.id);
     }
@@ -403,7 +531,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         let images = produit['images'];
         let image_nombres = images.length;
         const fs = require('fs-extra');
-        console.log("images", images);
         for(let a = 0; a < image_nombres; a++){
           fs.remove("./uploads/produits/"+images[a]+"", err => {
           })
