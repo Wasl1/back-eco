@@ -33,6 +33,7 @@
     "mongoosastic": "^4.6.0",
     "mongoose": "^5.9.10",
     "mongoose-elasticsearch-xp": "^5.8.0",
+    "nodemailer": "^6.4.8",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "pdfmake": "^0.1.65",

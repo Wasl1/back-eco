@@ -88,7 +88,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     return results;
   }
 
-  @Get('/GenPdf/generatePDF')
+  @Get('/GeneratePdf/generatePDF')
   public async generatePDF(@Body() body, @Res() res) {
     const fonts = {
       Helvetica: {
