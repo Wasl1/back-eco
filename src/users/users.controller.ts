@@ -55,32 +55,28 @@ export class UsersController {
             <p>${body.message}</p>
         `;
 
-        // créer un objet transporteur réutilisable à l'aide du transport SMTP par défaut
         let transporter = nodemailer.createTransport({
             service: 'gmail',
             host: 'smtp.gmail.com',
             port: 587,
-            secure: false, // true for 465, false for other ports
+            secure: false, 
             auth: {
-                user: 'no-reply@yourdomain.com', // compte gmail
-                pass: 'password',  // password
+                user: 'no-reply@yourdomain.com', 
+                pass: 'password',  
             },
         });
         
         let info = await transporter.sendMail({
-            from: '"E-commerce GWERT" <no-reply@yourdomain.com>', // sender address
-            to: "test@qq.com", // list of receivers
-            subject: "Hello ✔", // Subject line
-            text: "Hello world?", // plain text body
-            html: output, // html body
+            from: '"E-commerce GWERT" <no-reply@yourdomain.com>',
+            to: "test@qq.com", 
+            subject: "Hello ✔", 
+            text: "Hello world?", 
+            html: output, 
           });
         
           console.log("Message sent: %s", info.messageId);
-          // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
         
-          // Preview only available when sending through an Ethereal account
           console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-          // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
     }
 
     @Post('/sendMail/PdfGenerated')
@@ -165,7 +161,6 @@ export class UsersController {
                 bold: true,
                 fontSize: 14,
                 alignment: 'right',
-                //          droit, bas]
                 margin: [0, 20, 0, 5],
                 },
                 {
@@ -174,7 +169,6 @@ export class UsersController {
                 bold: true,
                 fontSize: 14,
                 alignment: 'right',
-                //          droit, bas]
                 margin: [0, 20, 0, 5],
                 decoration: 'underline',
                 },
@@ -251,6 +245,18 @@ export class UsersController {
         pdfDoc.on('data', (chunk) => {chunks.push(chunk);});
         pdfDoc.on('end', () =>{
         let pdfData = Buffer.concat(chunks);
+
+        const output = `
+            <p>You have a new contact request</p>
+            <h3>Contact Details</h3>
+            <ul>  
+            <li>Name: ${body.name}</li>
+            <li>Company: ${body.company}</li>
+            <li>Phone: ${body.phone}</li>
+            </ul>
+            <h3>Message</h3>
+            <p>${body.message}</p>
+        `;
         
         let transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -268,7 +274,7 @@ export class UsersController {
             to: "test@qq.com", 
             subject: "Ecommerce", 
             text: "Hello world?", 
-            html: "Pdf en jointe", 
+            html: output, 
             attachments:[
                 {
                     filename: 'eco.pdf',
