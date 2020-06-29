@@ -47,7 +47,6 @@ UsersSchema.plugin(mexp);
 
 // NOTE: Arrow functions are not used here as we do not want to use lexical scope for 'this'
 UsersSchema.pre('save', function(next){
-
     let user = this;
 
     // Make sure not to rehash the password if it is already hashed
@@ -55,7 +54,6 @@ UsersSchema.pre('save', function(next){
 
     // Generate a salt and use it to hash the user's password
     bcrypt.genSalt(10, (err, salt) => {
-
         if(err) return next(err);
 
         bcrypt.hash(user.password, salt, (err, hash) => {
@@ -68,7 +66,6 @@ UsersSchema.pre('save', function(next){
 }); 
 
 UsersSchema.methods.checkPassword = function(attempt, callback){
-
     let user = this;
 
     bcrypt.compare(attempt, user.password, (err, isMatch) => {

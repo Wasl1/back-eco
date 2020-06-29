@@ -5,8 +5,8 @@ import { UsersService } from './users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { editFileName, imageFileFilter } from './file-upload.utils';
 import { diskStorage } from 'multer';
-import { transporter, nodemailer, email } from "src/template.mail";
-import { printer, docDefinitionFacture } from "src/template.pdf";
+import { transporter, nodemailer, email } from "src/templates/template.mail";
+import { printer, docDefinitionFacture } from "src/templates/template.pdf";
 @Controller('users')
 export class UsersController {
     constructor(private usersService: UsersService) {}
@@ -43,16 +43,15 @@ export class UsersController {
 
     @Post('sendMail')
     public async sendMail(@Body() body){
-        
         let info = await transporter.sendMail({
-            from: '"E-commerce GWERT" <no-reply@yourdomain.com>',
-            to: "qtest@q.com", 
-            subject: "Hello ✔", 
-            text: "Hello world?", 
+            from: '"WAS" <foo@example.com>',
+            bcc: body.mail, 
+            subject: "MAIL MULTIPLE", 
+            text: "Test de mail multiple", 
             html: email(body.nom, body.compagnie, body.phone, body.message),
           });
         
-          console.log("Message sent: %s", info.messageId);
+          console.log("Message envoyé: %s", info.messageId);
           console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
     }
 
@@ -66,10 +65,10 @@ export class UsersController {
         let pdfData = Buffer.concat(chunks);
 
         let info = transporter.sendMail({
-            from: '"E-commerce GWERT" <no-reply@yourdomain.com>', 
-            to: "qtest@q.com", 
+            from: '"E-commerce GWERT" <foo@example.com>', 
+            bcc: body.mail, 
             subject: "Ecommerce", 
-            text: "Hello world?", 
+            text: "Ewa lets", 
             html: email(body.nom, body.compagnie, body.phone, body.message), 
             attachments:[
                 {

@@ -5,7 +5,7 @@ import { FilesInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from 'multer';
 import { editFileName, imageFileFilter } from "src/users/file-upload.utils";
 import { HistoricSearchService } from "src/historic-search/historic-search.service";
-import { printer, docDefinitionFacture } from "src/template.pdf";
+import { printer, docDefinitionFacture } from "src/templates/template.pdf";
 
 @Controller("produits")
 export class ProduitsController {
