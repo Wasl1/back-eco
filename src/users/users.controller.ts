@@ -44,10 +44,24 @@ export class UsersController {
     @Post('sendMail')
     public async sendMail(@Body() body){
         let info = await transporter.sendMail({
-            from: '"WAS" <foo@example.com>',
+            from: '"E-commerce GWERT" <foo@example.com>',
+            to: body.mail, 
+            subject: "MAIL", 
+            text: "Test de mail", 
+            html: email(body.nom, body.compagnie, body.phone, body.message),
+          });
+        
+          console.log("Message envoyé: %s", info.messageId);
+          console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    }
+
+    @Post('sendMailMultiple')
+    public async sendMailMultiple(@Body() body){
+        let info = await transporter.sendMail({
+            from: '"E-commerce GWERT" <foo@example.com>',
             bcc: body.mail, 
             subject: "MAIL MULTIPLE", 
-            text: "Test de mail multiple", 
+            text: "Test de mail multpiple", 
             html: email(body.nom, body.compagnie, body.phone, body.message),
           });
         
@@ -68,7 +82,38 @@ export class UsersController {
             from: '"E-commerce GWERT" <foo@example.com>', 
             bcc: body.mail, 
             subject: "Ecommerce", 
-            text: "Ewa lets", 
+            text: "Mail avec pdf", 
+            html: email(body.nom, body.compagnie, body.phone, body.message), 
+            attachments:[
+                {
+                    filename: 'eco.pdf',
+                    content: pdfData
+                }
+            ],
+          });
+          return info.then(() => {
+            console.log("email envoyé");
+            }).catch(error => {
+                console.error("Une erreur s'est produite lors de l'envoi de l'e-mail:", error);
+            });
+        });
+        pdfDoc.end();
+    }
+
+    @Post('/sendMailMultiple/PdfGenerated')
+    public async sendMailPdfMultiple(@Body() body, @Res() res) {
+    
+        const pdfDoc = printer.createPdfKitDocument(docDefinitionFacture);
+        let chunks = [];
+        pdfDoc.on('data', (chunk) => {chunks.push(chunk);});
+        pdfDoc.on('end', () =>{
+        let pdfData = Buffer.concat(chunks);
+
+        let info = transporter.sendMail({
+            from: '"E-commerce GWERT" <foo@example.com>', 
+            bcc: body.mail, 
+            subject: "Ecommerce", 
+            text: "Mail multiple avec pdf", 
             html: email(body.nom, body.compagnie, body.phone, body.message), 
             attachments:[
                 {
