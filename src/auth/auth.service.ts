@@ -1,57 +1,132 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { JwtService } from '@nestjs/jwt';
-
+import { Users } from 'src/users/interface/users.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { RefreshToken } from 'src/auth/interfaces/refresh-token.interface';
+import { sign } from 'jsonwebtoken';
+import { Request } from 'express';
+import { v4 } from 'uuid';
+import { getClientIp } from 'request-ip';
+import * as Cryptr from 'cryptr';
+import { RefreshAccessTokenDto } from 'src/users/dto/refresh-access-token.dto';
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class AuthService {
-    constructor(private usersService: UsersService, private jwtService: JwtService){
-
+    constructor(@InjectModel('RefreshToken') private readonly refreshTokenModel: Model<RefreshToken>,
+    @InjectModel('User') private readonly userModel: Model<Users>,
+    private usersService: UsersService){
     }
 
-    async validateUserByPassword(loginAttempt: LoginUserDto) {
-        // This will be used for the initial login
-        let userToAttempt = await this.usersService.findOneByUsername(loginAttempt.username);
-        
-        return new Promise((resolve) => {
-            // Check the supplied password against the hash stored for this username address
-            userToAttempt.checkPassword(loginAttempt.password, (err, isMatch) => {
-                if(err) throw new UnauthorizedException();
-    
-                if(isMatch){
-                    // If there is a successful match, generate a JWT for the user
-                    resolve(this.createJwtPayload(userToAttempt));
-    
-                } else {
-                    throw new UnauthorizedException();
-                }
-            });
-        });
+    async login(req: Request, loginUserDto: LoginUserDto) {
+      const user = await this.usersService.findOneByUsername(loginUserDto.username);
+      await this.checkPassword(loginUserDto.password, user);
+      await this.passwordsAreMatch(user);
+      return {
+          email: user.email,
+          username: user.username,
+          roles : user.roles,
+          accessToken: await this.createAccessToken(user._id),
+          refreshToken: await this.createRefreshToken(req, user._id),
+      };
+    }
+    async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
+      const userId = await this.findRefreshToken(refreshAccessTokenDto.refreshToken);
+      const user = await this.userModel.findById(userId);
+      if (!user) {
+          throw new BadRequestException('Bad request');
+      }
+      return {
+          accessToken: await this.createAccessToken(user._id),
+      };
     }
 
-    async validateUserByJwt(payload: JwtPayload) { 
+    private async checkPassword(attemptPass: string, user) {
+        const match = await bcrypt.compare(attemptPass, user.password);
+        if (!match) {
+            throw new NotFoundException('Wrong email or password.');
+        }
+        return match;
+    }
 
-        // This will be used when the user has already logged in and has a JWT
-        let user = await this.usersService.findOneByUsername(payload.username);
+    private async passwordsAreMatch(user) {
+        user.loginAttempts = 0 ;
+        await user.save();
+    }
 
-        if(user){
-            return this.createJwtPayload(user);
-        } else {
-            throw new UnauthorizedException();
+    async createAccessToken(userId: string) {
+      const accessToken = sign({userId}, process.env.JWT_SECRET , { expiresIn: process.env.JWT_EXPIRATION });
+      return accessToken;
+    }
+  
+    async createRefreshToken(req: Request, userId) {
+      const refreshToken = new this.refreshTokenModel({
+        userId,
+        refreshToken: v4(),
+        ip: this.getIp(req),
+        browser: this.getBrowserInfo(req),
+        country: this.getCountry(req),
+      });
+      await refreshToken.save();
+      return refreshToken.refreshToken;
+    }
+  
+    async findRefreshToken(token: string) {
+      const refreshToken = await this.refreshTokenModel.findOne({refreshToken: token});
+      if (!refreshToken) {
+        throw new UnauthorizedException('User has been logged out.');
+      }
+      return refreshToken.userId;
+    }
+    
+    async validateUser(jwtPayload: JwtPayload): Promise<any> {
+      const user = await this.userModel.findOne({_id: jwtPayload.userId});
+      if (!user) {
+        throw new UnauthorizedException('User not found.');
+      }
+      return user;
+    }
+
+      // JWT Extractor
+    private jwtExtractor(request) {
+      let token = null;
+      if (request.header('x-token')) {
+      token = request.get('x-token');
+    } else if (request.headers.authorization) {
+        token = request.headers.authorization.replace('Bearer ', '').replace(' ', '');
+    } else if (request.body.token) {
+        token = request.body.token.replace(' ', '');
+    }
+        if (request.query.token) {
+        token = request.body.token.replace(' ', '');
+    }
+        const cryptr = new Cryptr('clésecrètedemacrypto');
+        if (token) {
+        try {
+            token = cryptr.decrypt(token);
+        } catch (err) {
+            throw new BadRequestException('Bad request.');
         }
     }
+        return token;
+    }
 
-    createJwtPayload(user){
-        let data: JwtPayload = {
-            username: user.username
-        };
+    // Methods
+    returnJwtExtractor() {
+        return this.jwtExtractor;
+    }
 
-        let jwt = this.jwtService.sign(data);
+    getIp(req: Request): string {
+        return getClientIp(req);
+    }
 
-        return {
-            expiresIn: 3600,
-            token: jwt            
-        }
+    getBrowserInfo(req: Request): string {
+        return req.header['user-agent'] || 'XX';
+    }
+
+    getCountry(req: Request): string {
+        return req.header['cf-ipcountry'] ? req.header['cf-ipcountry'] : 'XX';
     }
 }

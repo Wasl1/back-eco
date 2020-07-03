@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Put, UseInterceptors, Param, UploadedFile, Delete, Query, Res } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Put, UseInterceptors, Param, UploadedFile, Delete, Query, Res, HttpCode, HttpStatus } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
@@ -7,6 +7,8 @@ import { editFileName, imageFileFilter } from './file-upload.utils';
 import { diskStorage } from 'multer';
 import { transporter, nodemailer, email } from "src/templates/template.mail";
 import { printer, docDefinitionFacture } from "src/templates/template.pdf";
+import { Roles } from './../auth/decorators/roles.decorator';
+import { ApiOperation, ApiOkResponse, ApiBearerAuth, ApiHeader} from '@nestjs/swagger';
 @Controller('users')
 export class UsersController {
     constructor(private usersService: UsersService) {}
@@ -34,6 +36,35 @@ export class UsersController {
     public async esSearchUser(@Query('query') query: string){   
         const results = await this.usersService.userSearch(query);
         return results;
+    }
+
+    @Get('/test/test')
+    @UseGuards(AuthGuard('jwt'))
+    @Roles('user')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
+    public async testAuthRoute(){
+        return {
+            message: 'Mess hafa ndray'
+        }
+    }
+
+    @Get('/test/test1')
+    @UseGuards(AuthGuard('jwt'))
+    @Roles('admin')
+    @ApiBearerAuth()
+    @ApiOperation({summary: 'A private route for check the auth',})
+    @ApiHeader({
+        name: 'Bearer',
+        description: 'the token we need for auth.'
+    })
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
+    public async testAuthRoute1(){
+        return {
+            message: 'Mess hafa ndray'
+        }
     }
     
     @Post() 

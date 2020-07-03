@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
 let mexp = require('mongoose-elasticsearch-xp');
+import * as validator from 'class-validator';
 
 export const UsersSchema = new mongoose.Schema({
     email: {
@@ -15,6 +16,13 @@ export const UsersSchema = new mongoose.Schema({
     },
     password: {
         type: String
+    },
+    refreshToken: {
+        type: String, default: null 
+    },
+    verification: {
+        type: String,
+        validate: validator.isUUID,
     },
     nom: {
         type: String,
