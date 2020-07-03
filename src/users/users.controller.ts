@@ -9,6 +9,7 @@ import { transporter, nodemailer, email } from "src/templates/template.mail";
 import { printer, docDefinitionFacture } from "src/templates/template.pdf";
 import { Roles } from './../auth/decorators/roles.decorator';
 import { ApiOperation, ApiOkResponse, ApiBearerAuth, ApiHeader} from '@nestjs/swagger';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 @Controller('users')
 export class UsersController {
     constructor(private usersService: UsersService) {}
@@ -38,32 +39,27 @@ export class UsersController {
         return results;
     }
 
-    @Get('/test/test')
-    @UseGuards(AuthGuard('jwt'))
-    @Roles('user')
+    @Get('/routes/user')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('user', 'admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     public async testAuthRoute(){
         return {
-            message: 'Mess hafa ndray'
+            message: 'for user and admin'
         }
     }
 
-    @Get('/test/test1')
-    @UseGuards(AuthGuard('jwt'))
+    @Get('/routes/admin')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('admin')
     @ApiBearerAuth()
-    @ApiOperation({summary: 'A private route for check the auth',})
-    @ApiHeader({
-        name: 'Bearer',
-        description: 'the token we need for auth.'
-    })
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     public async testAuthRoute1(){
         return {
-            message: 'Mess hafa ndray'
+            message: 'admin only'
         }
     }
     

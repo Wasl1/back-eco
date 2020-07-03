@@ -7,7 +7,7 @@ export interface Users {
     readonly prenom: string;
     readonly adresse: string;
     readonly tel: string;
-    readonly role: string;
+    readonly roles: [string];
     readonly avatar: string;
     readonly verification: string;
 }
