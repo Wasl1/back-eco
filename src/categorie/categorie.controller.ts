@@ -1,7 +1,7 @@
 import { Controller,Post,Body,Get,Param,Delete,HttpStatus, Put } from '@nestjs/common';
 
 import { categorieService } from './categorie.service';
-import { CreatePostDTO } from './dto/categorie-post.dto'
+import { categorieDto } from './dto/categorie.dto'
 
 
 @Controller('categorie')
@@ -9,13 +9,9 @@ export class categorieController {
     constructor(private readonly categorieService: categorieService) {}
 
     @Post()
-    async addcategorie(@Body() CreatePostDTO: CreatePostDTO) {
+    async addcategorie(@Body() CreatePostDTO: categorieDto) {
         const categorie = await this.categorieService.insertcategorie(CreatePostDTO);
-        return {
-            statusCode: HttpStatus.OK,
-            message: 'categorie added successfully',
-            data: categorie,
-        };
+        return categorie;
     }
 
     @Get()
@@ -25,32 +21,20 @@ export class categorieController {
     }
 
     @Get(':id')
-    getcategorie(@Param('id') categorieId: string) {
-        return this.categorieService.getSinglecategorie(categorieId);
+    async getcategorie(@Param('id') categorieId: string) {
+         const categorie = await this.categorieService.getSinglecategorie(categorieId);
+         return categorie;
     }
 
     @Put(':id')
-    async updatecategorie(@Param('id') categorieId: string, @Body() CreatePostDTO: CreatePostDTO) {
+    async updatecategorie(@Param('id') categorieId: string, @Body() CreatePostDTO: categorieDto) {
         const categorie = await this.categorieService.updatecategorie(categorieId,CreatePostDTO);
-
-        if (categorie){
-        return {
-            statusCode: HttpStatus.OK,
-            message: 'categorie updated successfully',
-            categorie: categorie,
-        }
-        };
-        };
+        return categorie;
+    };
         
     @Delete(':id')
     async removecategorie(@Param('id') categorieId: string) {
         const isDeleted = await this.categorieService.deletecategorie(categorieId);
-        
-        if (isDeleted) {
-            return {
-                statusCode: HttpStatus.OK,
-                message: 'categorie deleted successfully',
-            }
-    };
+        return isDeleted;
     };
 }

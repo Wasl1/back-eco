@@ -1,8 +1,8 @@
 import * as mongoose from 'mongoose';
 
-export interface categorie extends mongoose.Document {
+export interface categorieInterface extends mongoose.Document {
     id: string;
-    nom: string;
-    description: string;
-    date: Date;
+    readonly nom: string;
+    readonly description: string;
+    readonly date: Date;
   }
