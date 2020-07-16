@@ -3,7 +3,7 @@ export class  ProduitsDto {
     readonly titre: string;
     readonly description: string;
     readonly marque: string;
-    readonly categorie: string;
+    readonly categorie: mongoose.Schema.Types.ObjectId;
     readonly quantite: number;
     vote: any;
     images: any;

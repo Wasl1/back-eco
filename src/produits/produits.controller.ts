@@ -1,17 +1,20 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Put, UploadedFile, Delete, Res, BadRequestException, HttpException, HttpStatus, ParseIntPipe, Query } from "@nestjs/common";
+import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Put, UploadedFile, Delete, Res, BadRequestException, HttpException, HttpStatus, ParseIntPipe, Query, Req, Request, Patch } from "@nestjs/common";
 import { ProduitsService } from "./produits.service";
 import { ProduitsDto } from "./dto/produits.dto";
-import { FilesInterceptor } from "@nestjs/platform-express";
-import { diskStorage } from 'multer';
+import { FilesInterceptor, FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage, multer } from 'multer';
 import { editFileName, imageFileFilter } from "src/users/file-upload.utils";
 import { HistoricSearchService } from "src/historic-search/historic-search.service";
 import { printer, docDefinitionFacture } from "src/templates/template.pdf";
+import { createProduct} from "src/ImageConverter/ImageStorage";
+var _ = require('lodash');
+var path = require('path');
 
 @Controller("produits")
 export class ProduitsController {
   constructor(private produitsService: ProduitsService, private historicSeachService: HistoricSearchService ) {}
 
-@Get()
+@Get('getAll')
 public async getAllProduits() {
   const produits = await this.produitsService.findAll();
   return { produits, total: produits.length };
@@ -105,63 +108,60 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     pdfDoc.end();
   }
 
-  @Post()
-  @UseInterceptors(
-    FilesInterceptor("images", 3, {
-      storage: diskStorage({
-        destination: "./uploads/produits",
-        filename: editFileName,
-      }),
-      fileFilter: imageFileFilter,
-    })
-  )
-
-  async create(@Body() addProduitsDto: ProduitsDto, @UploadedFiles() files) {
+  @Post('add')
+  async create(@Body() addProduitsDto: ProduitsDto, @Request() req, @Res() res) {
     const response = [];
-    files.forEach((file) => {
-    response.push(file.filename);
+    let filename;
+    await new Promise((resolve) => {
+      createProduct(req, next => resolve());
+      filename = req.body.images.map(file => file.original.filename.split("-"));
+      for(let i = 0; i < filename.length; i++){
+        response.push(filename[i][0])
+      }
+
+      addProduitsDto.images = response;    
+
+      let data = {};
+      let detail_fabrication = {};
+      let detail_physique = {};
+      let prix = {};
+      let historique = [];
+      let creer = {};
+
+      detail_fabrication["numero_model"] = addProduitsDto.numero_model;
+      detail_fabrication["date_sortie"] = addProduitsDto.date_sortie;
+
+      detail_physique["poids"] = addProduitsDto.poids;
+      detail_physique["longueur"] = addProduitsDto.longueur;
+      detail_physique["largeur"] = addProduitsDto.largeur;
+      detail_physique["taille"] = addProduitsDto.taille;
+      detail_physique["couleur"] = addProduitsDto.couleur;
+      
+      prix["prix_normal"] = addProduitsDto.prix_normal;
+      prix["prix_promotion"] = addProduitsDto.prix_promotion;
+
+      creer["createur"] = addProduitsDto.createur;
+      creer["date_creation"] = addProduitsDto.date_creation;
+
+      historique.push({"creer": creer});
+
+      data["titre"] = addProduitsDto.titre;
+      data["description"] = addProduitsDto.description;
+      data["marque"] = addProduitsDto.marque;
+      data["categorie"] = addProduitsDto.categorie;
+      data["quantite"] = addProduitsDto.quantite;
+      data["images"] = addProduitsDto.images;
+      data["detail_fabrication"] = detail_fabrication;
+      data["detail_physique"] = detail_physique;
+      data["etat"] = addProduitsDto.etat;
+      data["prix"] = prix;
+      data["garantie"] = addProduitsDto.garantie;
+      data["provenance"] = addProduitsDto.provenance;
+      data["historique"] = historique;
+      
+      res.send("Produit ajouté");
+      return this.produitsService.create(data);
     });
-    addProduitsDto.images = response;    
-
-    let data = {};
-    let detail_fabrication = {};
-    let detail_physique = {};
-    let prix = {};
-    let historique = [];
-    let creer = {};
-
-    detail_fabrication["numero_model"] = addProduitsDto.numero_model;
-    detail_fabrication["date_sortie"] = addProduitsDto.date_sortie;
-
-    detail_physique["poids"] = addProduitsDto.poids;
-    detail_physique["longueur"] = addProduitsDto.longueur;
-    detail_physique["largeur"] = addProduitsDto.largeur;
-    detail_physique["taille"] = addProduitsDto.taille;
-    detail_physique["couleur"] = addProduitsDto.couleur;
-    
-    prix["prix_normal"] = addProduitsDto.prix_normal;
-    prix["prix_promotion"] = addProduitsDto.prix_promotion;
-
-    creer["createur"] = addProduitsDto.createur;
-    creer["date_creation"] = addProduitsDto.date_creation;
-
-    historique.push({"creer": creer});
-
-    data["titre"] = addProduitsDto.titre;
-    data["description"] = addProduitsDto.description;
-    data["marque"] = addProduitsDto.marque;
-    data["categorie"] = addProduitsDto.categorie;
-    data["quantite"] = addProduitsDto.quantite;
-    data["images"] = addProduitsDto.images;
-    data["detail_fabrication"] = detail_fabrication;
-    data["detail_physique"] = detail_physique;
-    data["etat"] = addProduitsDto.etat;
-    data["prix"] = prix;
-    data["garantie"] = addProduitsDto.garantie;
-    data["provenance"] = addProduitsDto.provenance;
-    data["historique"] = historique;
-    
-    return await this.produitsService.create(data);
   }
 
   @Put('/:id')
@@ -175,7 +175,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       let key = Object.keys(vraiBody);
       for(let i = 0; i < key.length; i++){
         let OldValue = produit[key[i]];
-        console.log(OldValue);
         champs[key[i]+"Old"] = (produit[key[i]] === undefined && (key[i] == "numero_model" || key[i] == "date_sortie"))  ? produit.detail_fabrication[key[i]] : (produit[key[i]] === undefined && (key[i] == "poids" || key[i] == "longueur" || key[i] == "largeur" || key[i] == "couleur" || key[i] == "taille")) ? produit.detail_physique[key[i]] : (produit[key[i]] === undefined && (key[i] == "prix_normal" || key[i] == "prix_promotion"))  ? produit.prix[key[i]] : produit[key[i]];
         champs[key[i]+"New"] = vraiBody[key[i]];
       }
@@ -247,37 +246,40 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/imagesAdd/:id')
-    @UseInterceptors(
-      FilesInterceptor("images", 3, {
-        storage: diskStorage({
-          destination: "./uploads/produits",
-          filename: editFileName,
-        }),
-        fileFilter: imageFileFilter,
-      })
-    )
-    public async addImages(@Param() param, @UploadedFiles() files){
+    public async addImages(@Param() param, @Request() req, @Res() res){
       const response = [];
-      files.forEach((file) => {
-      response.push(file.filename);
-      });
-
-      const produits = await this.produitsService.updateAddImage(param.id, response);
-      return produits;
+      let filename;
+      await new Promise((resolve) => {
+        createProduct(req, next => resolve());
+        filename = req.body.images.map(file => file.original.filename.split("-"));
+        for(let i = 0; i < filename.length; i++){
+          response.push(filename[i][0])
+        }
+      
+        const produits = this.produitsService.updateAddImage(param.id, response);
+        res.send("Images ajoutés");
+        return produits;
+      });  
     }
 
     @Put('/update/imagesRemove/:id')
     public async deleteImages(@Param() param, @Body() body){
       let images = [];
       images = body.images;
-            
+      var glob = require("glob");
+      // var directory = "uploads/produits";
       const fs = require('fs-extra');
-        for(var i = 0; i < images.length; i++){
-          fs.remove("./uploads/produits/"+images[i]+"", err => {
-          })
+       
+      for (var i = 0; i < images.length; i++){
+        glob(`**uploads/produits/${body.images[i]}*`, function(err, files) {
+            if (err) throw err;
+            for (const file of files) {
+              fs.unlink(file);
+            }
+        });
       }
       const produits = await this.produitsService.updateDeleteImage(param.id, images);
-      return produits;
+      return produits;      
     }
 
     @Put('/update/favorisAdd/:id')
@@ -342,9 +344,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       
         const produits = await this.produitsService.decrementQuantite(param.id, qteProduit);
         return produits;
-      } else console.log("Stock epuisé");
-      
-      
+      } else return "Stock epuisé";
     }
 
     @Delete('/:id')
@@ -353,9 +353,15 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         let images = produit['images'];
         var j = images.length;
         const fs = require('fs-extra');
-        for(var i = 0; i < j; i++){
-          fs.remove("./uploads/produits/"+images[i]+"", err => {
-          })
+        var glob = require("glob");
+       
+        for (var i = 0; i < j; i++){
+          glob(`**uploads/produits/${images[i]}*`, function(err, files) {
+              if (err) throw err;
+              for (const file of files) {
+                fs.unlink(path.join(file));
+              }
+          });
         }
         return this.produitsService.delete(param.id);
     }
@@ -365,6 +371,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       let id_produits = [];
       id_produits = body.id_produits;
       let j = id_produits.length;
+      var glob = require("glob");
 
       for(var i = 0; i < j; i++){        
         let produit = await this.produitsService.findById(id_produits[i]);
@@ -372,11 +379,14 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         let image_nombres = images.length;
         const fs = require('fs-extra');
         for(let a = 0; a < image_nombres; a++){
-          fs.remove("./uploads/produits/"+images[a]+"", err => {
-          })
+          glob(`**uploads/produits/${images[a]}*`, function(err, files) {
+            if (err) throw err;
+            for (const file of files) {
+              fs.unlink(path.join(file));
+            }
+          });
         }        
       }
       return this.produitsService.deleteMultiple(id_produits);
     }
-
 }

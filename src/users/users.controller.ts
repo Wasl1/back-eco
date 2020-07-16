@@ -1,15 +1,14 @@
-import { Controller, Post, Body, Get, UseGuards, Put, UseInterceptors, Param, UploadedFile, Delete, Query, Res, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Put, Param, Delete, Query, Res, HttpCode, HttpStatus, Request } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { editFileName, imageFileFilter } from './file-upload.utils';
-import { diskStorage } from 'multer';
 import { transporter, nodemailer, email } from "src/templates/template.mail";
 import { printer, docDefinitionFacture } from "src/templates/template.pdf";
 import { Roles } from './../auth/decorators/roles.decorator';
-import { ApiOperation, ApiOkResponse, ApiBearerAuth, ApiHeader} from '@nestjs/swagger';
+import { ApiOkResponse, ApiBearerAuth} from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { createProduct} from "src/ImageConverter/ImageStorage";
+
 @Controller('users')
 export class UsersController {
     constructor(private usersService: UsersService) {}
@@ -158,24 +157,25 @@ export class UsersController {
         pdfDoc.end();
     }
 
-    @Put('/:id')
-    @UseInterceptors(
-        FileInterceptor('avatar', {
-          storage: diskStorage({
-            destination: './uploads/avatars',
-            filename: editFileName,      
-          }),
-          fileFilter: imageFileFilter,
-        }),
-      )
-    public async updateUSer(@Param() param, @Body() body, @UploadedFile() uploadAvatar: any){
-        if(uploadAvatar){
-            body['avatar'] = uploadAvatar.filename;
-            const user = await this.usersService.update(param.id, body);
-            return user
+    @Put('/update/:id')
+    public async updateUSer(@Param() param, @Body() body, @Request() req, @Res() res){
+        if(req.body.avatar){
+            let filename;
+            await new Promise((resolve) => {
+                createProduct(req, next => resolve());
+                filename = req.body.avatar.map(file => file.original.filename.split("-"));
+                body['avatar'] = filename[0][0];
+                const user = this.usersService.update(param.id, body);
+                res.send("User modifié");
+                return user;
+            });
+            
         }else{
+            const avatar = await this.usersService.findById(param.id);
+            body["avatar"] = avatar.avatar;
             const user = await this.usersService.update(param.id, body);
-            return user
+            res.send("User modifié");
+            return user;
         }
     }
 
@@ -184,11 +184,13 @@ export class UsersController {
         const user = await this.usersService.findById(param.id);
         let avatar = user['avatar'];
         const fs = require('fs-extra');
-        fs.remove("./uploads/avatars/"+avatar+"", err => {
-            console.log('succes');
-        const user = this.usersService.delete(param.id);
-        return user;
+        var glob = require("glob");
+        glob(`**uploads/avatar/${avatar}*`, function(err, files) {
+            if (err) throw err;
+            for (const file of files) {
+                fs.unlink(file);
+            }
         });
-        return user;
+        return this.usersService.delete(param.id);
     }
 }

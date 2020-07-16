@@ -25,9 +25,8 @@ export class AuthService {
       await this.checkPassword(loginUserDto.password, user);
       await this.passwordsAreMatch(user);
       return {
-          email: user.email,
           username: user.username,
-          roles : user.roles,
+          email: user.email,
           accessToken: await this.createAccessToken(user._id),
           refreshToken: await this.createRefreshToken(req, user._id),
       };
