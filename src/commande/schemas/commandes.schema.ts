@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import { IsDate } from 'class-validator';
 
 var autoIncrement = require('simple-mongoose-autoincrement');
 
@@ -11,6 +10,7 @@ export const commandesSchema = new mongoose.Schema({
 
     id_user: {
         type: mongoose.Schema.Types.ObjectId, ref:'user'
+
     },
 
 
@@ -49,9 +49,9 @@ export const commandesSchema = new mongoose.Schema({
             type: String,
             required: true,
         },
-        
+
         estimation_delivrance: {
-            type: String,
+            type: Date,
             required: true,
         }
     },
@@ -61,7 +61,7 @@ export const commandesSchema = new mongoose.Schema({
             type: String,
             required: true,
         },
-        
+
         transaction_id: {
             type: String,
             required: true,

@@ -15,11 +15,9 @@ export class CommandesService {
         return await this.commandesModel.find();
     }
     
-    async getPost(postID): Promise<commandes[]> {
-        const post = await this.commandesModel
-            .findById(postID)
-            .exec();
-        return post;
+    async getCommande(commandeID): Promise<commandes[]> {
+        const commande = await this.commandesModel.findById(commandeID).exec();
+        return commande;
     }
 
     async AddCommande(createDTO: CreateDTO): Promise<commandes> {
@@ -40,16 +38,14 @@ export class CommandesService {
         }
     
 
-    async editPost(postID, createPostDTO: CreateDTO): Promise<commandes> {
-        const editedPost = await this.commandesModel
-            .findByIdAndUpdate(postID, createPostDTO, { new: true });
-        return editedPost;
+    async editPost(commandeID, createPostDTO: CreateDTO): Promise<commandes> {
+        const editedCommande = await this.commandesModel.findByIdAndUpdate(commandeID, createPostDTO, { new: true });
+        return editedCommande;
     }
 
-    async delete(postID): Promise<commandes> {
-        const deletedPost = await this.commandesModel
-            .findByIdAndRemove(postID);
-        return deletedPost;
+    async delete(commandeID): Promise<commandes> {
+        const deletedcommande = await this.commandesModel.findByIdAndRemove(commandeID);
+        return deletedcommande;
     }
 
     async createCommande(createDTO: CreateDTO): Promise<commandes>{
