@@ -21,29 +21,17 @@ export class CommandesService {
     }
 
     async AddCommande(createDTO: CreateDTO): Promise<commandes> {
-        const product = new this.commandesModel()
-        
-        product.numero_commande = createDTO.numero_commande
-        product.id_user = createDTO.id_user
-        product.client = createDTO.client
-        product.adresse = createDTO.adresse
-        product.note_delivrance = createDTO.note_delivrance
-        product.date_creation = createDTO.date_creation
-        product.etat = createDTO.etat
-        product.tracage = createDTO.tracage
-        product.payment = createDTO.payment
-        product.commandes = createDTO.commandes
-
+        const product = new this.commandesModel(CreateDTO);
         return product.save();
         }
     
 
-    async editPost(commandeID, createPostDTO: CreateDTO): Promise<commandes> {
+    async updateCommande(commandeID, createPostDTO: CreateDTO): Promise<commandes> {
         const editedCommande = await this.commandesModel.findByIdAndUpdate(commandeID, createPostDTO, { new: true });
         return editedCommande;
     }
 
-    async delete(commandeID): Promise<commandes> {
+    async deleteCommande(commandeID): Promise<commandes> {
         const deletedcommande = await this.commandesModel.findByIdAndRemove(commandeID);
         return deletedcommande;
     }

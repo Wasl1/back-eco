@@ -12,8 +12,7 @@ export const commandesSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, ref:'user'
 
     },
-
-
+    
     client: {
         type: String,
         required: true,
