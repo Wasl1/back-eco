@@ -1,42 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import {Model} from 'mongoose';
 import {InjectModel} from '@nestjs/mongoose';
-import {commandes} from './interfaces/commandes.interfaces'
+import {commandesInterfaces} from './interfaces/commandes.interfaces'
 import {CreateDTO} from './dto/create.dto'
 
 
 @Injectable() 
 export class CommandesService {
     constructor(
-        @InjectModel('commande') private commandesModel: Model<commandes>,
+        @InjectModel('commande') private commandesModel: Model<commandesInterfaces>,
     ){}
 
     async getAll(){
         return await this.commandesModel.find();
     }
     
-    async getCommande(commandeID): Promise<commandes[]> {
+    async getCommande(commandeID): Promise<commandesInterfaces[]> {
         const commande = await this.commandesModel.findById(commandeID).exec();
         return commande;
-    }
+    }   
 
-    async AddCommande(createDTO: CreateDTO): Promise<commandes> {
-        const product = new this.commandesModel(CreateDTO);
-        return product.save();
-        }
-    
-
-    async updateCommande(commandeID, createPostDTO: CreateDTO): Promise<commandes> {
+    async updateCommande(commandeID, createPostDTO: CreateDTO): Promise<commandesInterfaces> {
         const editedCommande = await this.commandesModel.findByIdAndUpdate(commandeID, createPostDTO, { new: true });
         return editedCommande;
     }
 
-    async deleteCommande(commandeID): Promise<commandes> {
+    async deleteCommande(commandeID): Promise<commandesInterfaces> {
         const deletedcommande = await this.commandesModel.findByIdAndRemove(commandeID);
         return deletedcommande;
     }
 
-    async createCommande(createDTO: CreateDTO): Promise<commandes>{
+    async createCommande(createDTO: CreateDTO): Promise<commandesInterfaces>{
         const commandeCreated = new this.commandesModel(createDTO);
         return await commandeCreated.save();
     }

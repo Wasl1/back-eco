@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 
-export interface commandes extends Document {
+export interface commandesInterfaces extends Document {
     numero_commande: String;
     readonly id_user: string;
     readonly client: string;
