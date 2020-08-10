@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
+
 import {Model} from 'mongoose';
 import {InjectModel} from '@nestjs/mongoose';
+
 import {commandesInterfaces} from './interfaces/commandes.interfaces'
 import {CreateDTO} from './dto/create.dto'
 
@@ -34,4 +36,13 @@ export class CommandesService {
         const commandeCreated = new this.commandesModel(createDTO);
         return await commandeCreated.save();
     }
+
+    
+    async getid_commande(id_commandes: number) {
+        return await this.commandesModel.findById(id_commandes).populate('id_produit').exec();
+    }
+
 }
+
+
+  

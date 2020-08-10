@@ -8,9 +8,17 @@ export const commandesSchema = new mongoose.Schema({
         required: true,
     },
 
-    id_user: {
-        type: mongoose.Schema.Types.ObjectId, ref:'user'
+    createAt:{
+        type: false
+    },
 
+    updateAt:{
+        type: false
+    },
+
+    id_user: {
+        type: Number,
+        required: true,
     },
     
     client: {
@@ -27,10 +35,11 @@ export const commandesSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    
     date_creation: {
         type: Date,
         default: Date.now,
-        //es_indexed: true
+        es_indexed: true
     },
 
     etat:{
@@ -66,7 +75,7 @@ export const commandesSchema = new mongoose.Schema({
             required: true,
         },
 
-        Amount: {
+        amount: {
             type: Number,
             required: true,
         },
@@ -80,6 +89,8 @@ export const commandesSchema = new mongoose.Schema({
     commandes:[
 
         {
+            _id: false,
+
             id_produit: {
                 type: mongoose.Schema.Types.ObjectId, ref:'produits'
             },
@@ -106,6 +117,19 @@ export const commandesSchema = new mongoose.Schema({
         },
    ],
 
-});
+},
 
-commandesSchema.plugin(autoIncrement, {field: 'numero_commande' /*with field name*/});
+{
+    toJSON: {
+      versionKey: false,
+      virtuals: true,
+      transform: (doc, ret) => {
+        delete ret.id;
+        delete ret.updateAt;
+      },
+    }
+}
+
+);
+
+commandesSchema.plugin(autoIncrement, {field: 'numero_commande'/*with field name*/});
