@@ -17,8 +17,7 @@ export const commandesSchema = new mongoose.Schema({
     },
 
     id_user: {
-        type: Number,
-        required: true,
+        type: mongoose.Schema.Types.ObjectId, ref:'User'
     },
     
     client: {

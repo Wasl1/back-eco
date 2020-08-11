@@ -20,11 +20,19 @@ constructor(private readonly service:CommandesService){}
       return commande;
   }
 
-  @Get('getid_commande/:id_commandes')
-  public async getid_commande(@Param() param){
-  const commande = await this.service.getid_commande(param.id_commandes);
+  @Get('get_iduser_commande/:id_commandes')
+  public async get_iduser_commande(@Param() param){
+  const commande = await this.service.get_iduser_commande(param.id_commandes);
+  let user = commande.id_user;
+  return {user, total : user.length};
+  }
+
+  
+  @Get('get_idproduit_commande/:id_commandes')
+  public async get_idproduit_commande(@Param() param){
+  const commande = await this.service.get_idproduit_commande(param.id_commandes);
   let user = commande.id_produit;
-  return user;
+  return {user, total : user.length};
   }
 
   @Post()

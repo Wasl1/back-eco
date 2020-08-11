@@ -38,7 +38,11 @@ export class CommandesService {
     }
 
     
-    async getid_commande(id_commandes: number) {
+    async get_iduser_commande(id_commandes: number) {
+        return await this.commandesModel.findById(id_commandes).populate('id_user').exec();
+    }
+
+    async get_idproduit_commande(id_commandes: number) {
         return await this.commandesModel.findById(id_commandes).populate('id_produit').exec();
     }
 
