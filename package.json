@@ -56,6 +56,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
     "sharp": "^0.25.4",
+    "simple-mongoose-autoincrement": "^1.2.1",
     "streamifier": "^0.1.1"
   },
   "devDependencies": {
