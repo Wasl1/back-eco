@@ -9,23 +9,23 @@ export class ProduitsService {
     constructor(@InjectModel('Produits') private produitsModel: Model<ProduitsInterface>) {}
 
     async find(options: object): Promise<ProduitsInterface> {
-        return await this.produitsModel.find(options).exec();
+        return await this.produitsModel.find(options).populate('categorie').exec();
     }
 
     async findAll(): Promise<ProduitsInterface[]> {
-        return await this.produitsModel.find().exec();
+        return await this.produitsModel.find().populate('categorie').sort('-_id').exec();
     }
 
     async findById(ID: number): Promise<ProduitsInterface> {
-        return await this.produitsModel.findById(ID).exec();
+        return await this.produitsModel.findById(ID).populate('categorie').exec();
     }
 
     async getLastProduits(): Promise<ProduitsInterface[]> {
-        return await this.produitsModel.find().sort('-_id').limit(10).exec();
+        return await this.produitsModel.find().sort('-_id').populate('categorie').limit(10).exec();
     }
 
     async getProduitsCustomised(page: number): Promise<ProduitsInterface[]> {
-        return await this.produitsModel.find({}, null, {limit: 20, skip: page}).sort('-_id').exec();
+        return await this.produitsModel.find({}, null, {limit: 20, skip: page}).populate('categorie').sort('-_id').exec();
     }
 
     async getUserWhoVoteProduit(id_produits: number) {

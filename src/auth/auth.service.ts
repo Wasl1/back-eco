@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
@@ -45,7 +45,7 @@ export class AuthService {
     private async checkPassword(attemptPass: string, user) {
         const match = await bcrypt.compare(attemptPass, user.password);
         if (!match) {
-            throw new NotFoundException('Wrong email or password.');
+          throw new HttpException('Mot de passe incorrect', HttpStatus.OK);
         }
         return match;
     }
@@ -75,7 +75,7 @@ export class AuthService {
     async findRefreshToken(token: string) {
       const refreshToken = await this.refreshTokenModel.findOne({refreshToken: token});
       if (!refreshToken) {
-        throw new UnauthorizedException('User has been logged out.');
+        throw new UnauthorizedException('Utilisateur deconnecté');
       }
       return refreshToken.userId;
     }
@@ -83,7 +83,7 @@ export class AuthService {
     async validateUser(jwtPayload: JwtPayload): Promise<any> {
       const user = await this.userModel.findOne({_id: jwtPayload.userId});
       if (!user) {
-        throw new UnauthorizedException('User not found.');
+        throw new HttpException('Utilisateur introuvable', HttpStatus.OK);
       }
       return user;
     }
