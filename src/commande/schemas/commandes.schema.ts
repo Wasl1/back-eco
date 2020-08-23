@@ -16,9 +16,10 @@ export const commandesSchema = new mongoose.Schema({
         type: false
     },
 
-    id_user: {
-        type: mongoose.Schema.Types.ObjectId, ref:'User'
-    },
+    id_user: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref:'User',
+    },],
     
     client: {
         type: String,
@@ -90,9 +91,9 @@ export const commandesSchema = new mongoose.Schema({
         {
             _id: false,
 
-            id_produit: {
-                type: mongoose.Schema.Types.ObjectId, ref:'produits'
-            },
+            id_produit: [{
+                type: mongoose.Schema.Types.ObjectId, ref:'Produits'
+            }],
     
             title: {
                 type: String,
