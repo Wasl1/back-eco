@@ -7,19 +7,32 @@ import { printer, docDefinitionFacture } from "src/templates/template.pdf";
 import { Roles } from './../auth/decorators/roles.decorator';
 import { ApiOkResponse, ApiBearerAuth} from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { createProduct} from "src/ImageConverter/ImageStorage";
+import { async } from 'rxjs/internal/scheduler/async';
+var sizeOf = require("image-size");
+const fs = require('fs-extra');
+var glob = require("glob");
 
 @Controller('users')
 export class UsersController {
     constructor(private usersService: UsersService) {}
 
     @Get()
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
     public async getAllUsers() {
         const users = await this.usersService.findAll();
         return { users, total: users.length};
     }
 
     @Get('find')
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
     public async findOneUser(@Body() body) {
         const queryCondition = body;
         const users = await this.usersService.findOne(queryCondition);
@@ -27,12 +40,22 @@ export class UsersController {
     }
 
     @Get('/:id')
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
     public async getUser(@Param() param){
         const user = await this.usersService.findById(param.id);
         return user;
     }
 
     @Get('/recherche/searchUser')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
     public async esSearchUser(@Query('query') query: string){   
         const results = await this.usersService.userSearch(query);
         return results;
@@ -63,11 +86,21 @@ export class UsersController {
     }
     
     @Post() 
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('user', 'admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
     public async create(@Body() createUserDto: CreateUserDto) {
         return await this.usersService.create(createUserDto);
     }
 
     @Post('sendMail')
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('user', 'admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
     public async sendMail(@Body() body){
         let info = await transporter.sendMail({
             from: '"E-commerce GWERT" <foo@example.com>',
@@ -82,6 +115,11 @@ export class UsersController {
     }
 
     @Post('sendMailMultiple')
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('user', 'admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
     public async sendMailMultiple(@Body() body){
         let info = await transporter.sendMail({
             from: '"E-commerce GWERT" <foo@example.com>',
@@ -96,6 +134,11 @@ export class UsersController {
     }
 
     @Post('/sendMail/PdfGenerated')
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('user', 'admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
     public async generatePDF(@Body() body, @Res() res) {
     
         const pdfDoc = printer.createPdfKitDocument(docDefinitionFacture);
@@ -127,6 +170,11 @@ export class UsersController {
     }
 
     @Post('/sendMailMultiple/PdfGenerated')
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('user', 'admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
     public async sendMailPdfMultiple(@Body() body, @Res() res) {
     
         const pdfDoc = printer.createPdfKitDocument(docDefinitionFacture);
@@ -158,16 +206,46 @@ export class UsersController {
     }
 
     @Put('/update/:id')
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('user', 'admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
     public async updateUSer(@Param() param, @Body() body, @Request() req, @Res() res){
         if(req.body.avatar){
             let filename;
+            filename = req.body.avatar.map(file => file.original.filename);            
+            const useravatar = await this.usersService.findById(param.id);
+            let avatar = useravatar['avatar'];
+
             await new Promise((resolve) => {
-                createProduct(req, next => resolve());
-                filename = req.body.avatar.map(file => file.original.filename.split("-"));
-                body['avatar'] = filename[0][0];
-                const user = this.usersService.update(param.id, body);
-                res.send("User modifié");
-                return user;
+                let that = this;
+                setTimeout(function(){
+                    let dimensions = sizeOf('uploads/avatar/'+filename[0]);
+                    if(dimensions.width < 200 && dimensions.height < 300){
+                        let image = filename[0].split("-")
+                        glob(`**uploads/avatar/${image[0]}*`, function(err, files) {
+                            if (err) throw err;
+                            for (const file of files) {
+                                fs.unlink(file);
+                            }
+                        });
+                        res.send("error: width < 180 or height < 240");
+                    } else{
+                        glob(`**uploads/avatar/${avatar}*`, function(err, files) {
+                            if (err) throw err;
+                            for (const file of files) {
+                                fs.unlink(file);
+                            }
+                        });
+                        filename = req.body.avatar.map(file => file.hd.filename.split("-"));
+                        body['avatar'] = filename[0][0];
+                        const user = that.usersService.update(param.id, body);
+                        res.send("User modifié");
+                        return user;
+                    }
+                }, 1500);
+
             });
             
         }else{
@@ -180,11 +258,14 @@ export class UsersController {
     }
 
     @Delete('/:id')
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('user', 'admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
     public async deleteUser(@Param() param) {
         const user = await this.usersService.findById(param.id);
         let avatar = user['avatar'];
-        const fs = require('fs-extra');
-        var glob = require("glob");
         glob(`**uploads/avatar/${avatar}*`, function(err, files) {
             if (err) throw err;
             for (const file of files) {

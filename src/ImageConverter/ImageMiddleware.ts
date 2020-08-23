@@ -1,5 +1,5 @@
 import { Injectable, NestMiddleware } from "@nestjs/common";
-import { uploadProductImages, resizerImages, createProduct} from "src/ImageConverter/ImageStorage";
+import { uploadProductImages, resizerImages} from "src/ImageConverter/ImageStorage";
 @Injectable()
 export class ImageMiddleware implements NestMiddleware {
     async use(req, res, next){

@@ -15,7 +15,7 @@ export const ProduitsSchema = new mongoose.Schema({
         required: true
     },
     categorie: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId, ref:'categorie',
         required: true
     },
     quantite: {

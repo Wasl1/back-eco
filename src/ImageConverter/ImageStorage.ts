@@ -1,5 +1,5 @@
 const multer = require("multer");
-const MulterSharpResizer = require("multer-sharp-resizer");
+import { resizer } from "src/ImageConverter/resizer";
 
 const multerStorage = multer.memoryStorage();
 
@@ -7,6 +7,7 @@ const multerStorage = multer.memoryStorage();
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
+    
   } else {
     cb("Format non supporté", false);
   }
@@ -24,9 +25,6 @@ export const uploadProductImages = upload.fields([
 ]);
 
 export const resizerImages = async (req, res, next) => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = `${today.getMonth() + 1}`.padStart(2, "0");
 
   const filename = {
     avatar: `avatar`,
@@ -40,15 +38,20 @@ export const resizerImages = async (req, res, next) => {
       height: null,
     },
     {
-      path: "medium",
-      width: 300,
-      height: 300,
+      path: "hd",
+      width: 720,
+      height: 480,
     },
     {
-        path: "lg",
-        width: 800,
-        height: 850,
-      },
+      path: "large",
+      width: 360,
+      height: 480,
+    },
+    {
+      path: "miniature",
+      width: 180,
+      height: 240,
+    },
   ];
   
   const uploadPath = `uploads`;
@@ -59,7 +62,7 @@ export const resizerImages = async (req, res, next) => {
   };
 
   // create a new instance of MulterSharpResizer and pass params
-  const resizeObj = new MulterSharpResizer(
+  const resizeObj = new resizer(
     req,
     filename,
     sizes,
@@ -76,8 +79,4 @@ export const resizerImages = async (req, res, next) => {
   req.body.avatar = getDataUploaded.avatar;
 
   next();
-};
-
-export const createProduct = async (req, next) => {
- 
 };
