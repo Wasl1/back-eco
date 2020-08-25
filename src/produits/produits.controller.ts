@@ -16,7 +16,7 @@ var glob = require("glob");
 export class ProduitsController {
   constructor(private produitsService: ProduitsService, private historicSeachService: HistoricSearchService ) {}
 
-@Get('getAllProduits')
+@Get()
 public async getAllProduits() {
   const produits = await this.produitsService.findAllProduits();
   return { produits, total: produits.length };
