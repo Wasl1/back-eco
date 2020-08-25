@@ -80,3 +80,9 @@ UsersSchema.methods.checkPassword = function(attempt, callback){
         callback(null, isMatch);
     });
 };
+
+UsersSchema.methods.toJSON = function(){
+    let obj = this.toObject();
+    delete obj.password;
+    return obj;
+}

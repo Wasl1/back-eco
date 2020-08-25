@@ -38,7 +38,7 @@ export class HistoricSearchController {
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
-    public async esSearchHistorique(@Query('query') query: string){   
+    public async esSearchHistorique(@Body('query') query: string){   
         const results = await this.historicSeachService.EsSearchHistorique(query);
         return results;
     }
