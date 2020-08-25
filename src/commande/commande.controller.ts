@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Param, Patch, Delete, Put } from '@nestjs/common';
 import { CommandesService } from './commande.service';
-import { CreateDTO } from './dto/create.dto';
+import { CommandeDTO } from './dto/commandes.dto';
+import { commandesSchema } from './schemas/commandes.schema';
 
 
 @Controller('commande')
@@ -14,29 +15,15 @@ constructor(private readonly service:CommandesService){}
   }
 
 
-  @Get('/:id')
-  async getCommande(@Param() CommandeID){
-      const commande = await this.service.getCommande(CommandeID.id);
-      return commande;
+  @Get('/:CommandeID')
+  public async getCommande(@Param() param){
+    return await this.service.getCommande(param.CommandeID);
+      
   }
 
-  @Get('get_iduser_commande/:id_commandes')
-  public async get_iduser_commande(@Param() param){
-  const commande = await this.service.get_iduser_commande(param.id_commandes);
-  let user = commande.id_user;
-  return {user, total : user.length};
-  }
-
-  
-  @Get('get_idproduit_commande/:id_commandes')
-  public async get_idproduit_commande(@Param() param){
-  const commande = await this.service.get_idproduit_commande(param.id_commandes);
-  let user = commande.id_produit;
-  return {user, total : user.length};
-  }
 
   @Post()
-  async createCommande(@Body() createDTO: CreateDTO) {
+  async createCommande(@Body() createDTO: CommandeDTO) {
       const commande = await this.service.createCommande(createDTO);
       return commande;
   }
@@ -55,4 +42,3 @@ constructor(private readonly service:CommandesService){}
         return commande;
     }
   }
-
