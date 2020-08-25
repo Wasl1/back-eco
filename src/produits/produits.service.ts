@@ -8,15 +8,11 @@ import { debug } from 'console';
 export class ProduitsService {
     constructor(@InjectModel('Produits') private produitsModel: Model<ProduitsInterface>) {}
 
-    async find(options: object): Promise<ProduitsInterface> {
-        return await this.produitsModel.find(options).populate('categorie').exec();
-    }
-
-    async findAll(): Promise<ProduitsInterface[]> {
+    async findAllProduits(): Promise<ProduitsInterface[]> {
         return await this.produitsModel.find().populate('categorie').sort('-_id').exec();
     }
 
-    async findById(ID: number): Promise<ProduitsInterface> {
+    async findByIdProduit(ID: number): Promise<ProduitsInterface> {
         return await this.produitsModel.findById(ID).populate('categorie').exec();
     }
 
@@ -36,12 +32,12 @@ export class ProduitsService {
         return await this.produitsModel.findById(id_produits).populate('favoris').exec();
     }
 
-    async create(produitsInterface: any) {
+    async createProduit(produitsInterface: any) {
         const createdTodo = new this.produitsModel(produitsInterface);
         return await createdTodo.save();  
     }
 
-    async update(ID: number, newValue: ProduitsInterface): Promise<ProduitsInterface> {
+    async updateProduit(ID: number, newValue: ProduitsInterface): Promise<ProduitsInterface> {
         const produits = await this.produitsModel.findById(ID).exec();
 
         if (!produits._id) {
@@ -138,7 +134,7 @@ export class ProduitsService {
         return await this.produitsModel.findByIdAndUpdate(ID, {$inc : {'quantite': qteProduit}}).exec();
     }
 
-    async delete(ID: number): Promise<string> {
+    async deleteProduit(ID: number): Promise<string> {
         try {
             await this.produitsModel.findByIdAndRemove(ID).exec();
             return 'Le produit a été supprimé';
@@ -149,12 +145,12 @@ export class ProduitsService {
         }
     }
 
-    async deleteMultiple(id_produits: any): Promise<string>{
+    async deleteMultipleProduits(id_produits: any): Promise<string>{
         await this.produitsModel.deleteMany({_id: {$in: id_produits}}).exec();
         return 'Produits supprimés';
     }
 
-    async search(query: string){
+    async searchProduit(query: string){
         return await this.produitsModel.esSearch({ query_string: { query: "*"+query+"*" }})
         .then(res => res.hits.hits.map(hit => {
             return hit['_source'];
@@ -162,8 +158,8 @@ export class ProduitsService {
         .catch(err => { throw new HttpException(err, 500); });
     }
 
-    async searchTitre(query: string){
-        return await this.produitsModel.esSearch({ bool: { must: { wildcard: {titre: "*"+query+"*"} } }})
+    async searchTitre(titre: string){
+        return await this.produitsModel.esSearch({ bool: { must: { wildcard: {titre: "*"+titre+"*"} } }})
         .then(res => res.hits.hits.map(hit => {
             return hit['_source'];
         }))

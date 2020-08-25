@@ -9,7 +9,7 @@ export class CommandeController {
 
 constructor(private readonly service:CommandesService){}
 
-  @Get('all')
+  @Get()
   async GetAll(){
     return await this.service.getAll();
   }

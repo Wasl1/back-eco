@@ -51,13 +51,13 @@ export class UsersController {
     }
 
     @Get('/recherche/searchUser')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    // @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
-    public async esSearchUser(@Query('query') query: string){   
-        const results = await this.usersService.userSearch(query);
+    public async esSearchUser(@Body('search_user') search_user: string){   
+        const results = await this.usersService.userSearch(search_user);
         return results;
     }
 
@@ -86,7 +86,7 @@ export class UsersController {
     }
     
     @Post() 
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    // @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)

@@ -52,8 +52,8 @@ export class UsersService {
         }
     }
 
-    async userSearch(query: string){
-        return await this.userModel.esSearch({ query_string: { query: "*"+query+"*" }})
+    async userSearch(search_user: string){
+        return await this.userModel.esSearch({ query_string: { query: "*"+search_user+"*" }})
         .then(res => res.hits.hits.map(hit => {
             return hit['_source'];
         }))

@@ -16,9 +16,9 @@ var glob = require("glob");
 export class ProduitsController {
   constructor(private produitsService: ProduitsService, private historicSeachService: HistoricSearchService ) {}
 
-@Get('getAll')
+@Get()
 public async getAllProduits() {
-  const produits = await this.produitsService.findAll();
+  const produits = await this.produitsService.findAllProduits();
   return { produits, total: produits.length };
 }
 
@@ -49,16 +49,9 @@ public async getUserWhoFavoriteProduit(@Param() param){
   return {user, total : user.length};
 }
 
-@Get('find')
-public async findProduit(@Body() body) {
-  const queryCondition = body;
-  const produits = await this.produitsService.find(queryCondition);
-  return produits;
-}
-
 @Get('/:id')
 public async getProduit(@Param() param) {
-  const produits = await this.produitsService.findById(param.id);
+  const produits = await this.produitsService.findByIdProduit(param.id);
   return produits;
 }
 
@@ -71,8 +64,8 @@ public async getImage(@Param('imgpath') images, @Res() res) {
   });
 }
 
-  @Get('/recherche/search')
-  public async esSearch(@Query('keywords') keywords: string, @Query('id_user') id_user: number){
+  @Get('/recherche/searchProduit')
+  public async esSearch(@Body('keywords') keywords: string, @Body('id_user') id_user: number){
     let userSearch = {};
     let historicSearch= {};
 
@@ -82,14 +75,14 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     historicSearch["userSearch"] = userSearch;    
       
     const results = await this.historicSeachService.addUserSearch(id_user, historicSearch).then(()=>{
-      return this.produitsService.search(keywords);
+      return this.produitsService.searchProduit(keywords);
     });
     return results;
   }
 
   @Get('/recherche/searchTitre')
-  public async esSearchTitre(@Query('query') query: string){
-    const results = await this.produitsService.searchTitre(query);
+  public async esSearchTitre(@Body('titre') titre: string){
+    const results = await this.produitsService.searchTitre(titre);
     return results;
   }
 
@@ -181,7 +174,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
             data["historique"] = historique;
             
             res.send("Produit ajouté");
-            return that.produitsService.create(data);
+            return that.produitsService.createProduit(data);
         }
       }, 500);
     });
@@ -194,7 +187,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({})
     public async updateProduits(@Param() param, @Body() body, @Body() vraiBody){ 
-      const produit = await this.produitsService.findById(param.id);
+      const produit = await this.produitsService.findByIdProduit(param.id);
     
       let champs = {};
       let modifier = {};
@@ -245,7 +238,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         body["detail_physique"] = detail_physique;
         body["prix"] = prix;
           
-        const produits = await this.produitsService.update(param.id, body).then(()=>{
+        const produits = await this.produitsService.updateProduit(param.id, body).then(()=>{
             return this.produitsService.updateModifier(param.id, modificationArray);
         });
         return produits;
@@ -317,7 +310,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
               res.send("Images ajoutés");
               return produits;
           } 
-        }, 500);
+        }, 1000);
       });  
     }
 
@@ -433,7 +426,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     public async decrementQuantite(@Param() param, @Body() body){
-      const produit = await this.produitsService.findById(param.id);
+      const produit = await this.produitsService.findByIdProduit(param.id);
 
       let qteProduit = body.quantite;
       
@@ -452,7 +445,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     public async deleteProduits(@Param() param) {
-        const produit = await this.produitsService.findById(param.id);
+        const produit = await this.produitsService.findByIdProduit(param.id);
         let images = produit['images'];
         var j = images.length;
         const fs = require('fs-extra');
@@ -466,7 +459,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
               }
           });
         }
-        return this.produitsService.delete(param.id);
+        return this.produitsService.deleteProduit(param.id);
     }
 
     @Delete('/delete/deleteMultipleProduits')
@@ -482,7 +475,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       var glob = require("glob");
 
       for(var i = 0; i < j; i++){        
-        let produit = await this.produitsService.findById(id_produits[i]);
+        let produit = await this.produitsService.findByIdProduit(id_produits[i]);
         let images = produit['images'];
         let image_nombres = images.length;
         const fs = require('fs-extra');
@@ -495,6 +488,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
           });
         }        
       }
-      return this.produitsService.deleteMultiple(id_produits);
+      return this.produitsService.deleteMultipleProduits(id_produits);
     }
 }
