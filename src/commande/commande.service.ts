@@ -42,8 +42,8 @@ export class CommandesService {
         return editedCommande;
     }
 
-    async updateProduitAdd(ID: number, id_produit: any){
-        return await this.commandesModel.findByIdAndUpdate(ID, {$addToSet: {produit: id_produit}}, {safe: true, upsert: true}, err => {
+    async updateProduitAddCommande(ID: number, id_produit: any){
+        return await this.commandesModel.findByIdAndUpdate(ID, {$addToSet: {commandes: {id_produit: id_produit}}}, {safe: true, upsert: true}, err => {
             if(err){console.log(err);
             }else{
                 console.log("produit ajouté");
@@ -51,8 +51,8 @@ export class CommandesService {
         }).exec();
     }
 
-    async updateProduitRemove(ID: number, id_produit: any){
-        return await this.commandesModel.findByIdAndUpdate(ID, {$pull: {produit: id_produit}}, {safe: true, multi: true}, err => {
+    async updateProduitRemoveCommande(ID: number, id_produit: any){
+        return await this.commandesModel.findByIdAndUpdate(ID, {$pull: {commandes: {id_produit: id_produit}}}, {safe: true, multi: true}, err => {
             if(err){console.log(err);
             }else{
                 console.log("produit annulé");
