@@ -42,6 +42,24 @@ export class CommandesService {
         return editedCommande;
     }
 
+    async updateProduitAdd(ID: number, id_produit: any){
+        return await this.commandesModel.findByIdAndUpdate(ID, {$addToSet: {produit: id_produit}}, {safe: true, upsert: true}, err => {
+            if(err){console.log(err);
+            }else{
+                console.log("produit ajouté");
+            }
+        }).exec();
+    }
+
+    async updateProduitRemove(ID: number, id_produit: any){
+        return await this.commandesModel.findByIdAndUpdate(ID, {$pull: {produit: id_produit}}, {safe: true, multi: true}, err => {
+            if(err){console.log(err);
+            }else{
+                console.log("produit annulé");
+            }
+        }).exec();
+    }
+
     async deleteCommande(commandeID): Promise<commandesInterfaces> {
         const deletedcommande = await this.commandesModel.findByIdAndRemove(commandeID);
         return deletedcommande;

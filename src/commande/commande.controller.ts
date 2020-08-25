@@ -36,6 +36,25 @@ constructor(private readonly service:CommandesService){}
   }
 
 
+  @Put('/update/produitAdd/:id')
+    public async updateProduitPush(@Param() param, @Body() body){
+      let array = [];
+      let values = Object.values(body);
+      Array.prototype.push.apply(array, values);
+      const produit = await this.service.updateProduitAdd(param.id, array);
+      return produit;
+    }
+
+  @Put('/update/produitRemove/:id')
+    public async updateProduitPull(@Param() param, @Body() body){
+      let array = [];
+      let values = Object.values(body);
+      Array.prototype.push.apply(array, values);
+      const produits = await this.service.updateProduitRemove(param.id, array[0]);
+      return produits;
+    }
+
+    
   @Delete('/:id')
     public async deleteCommande(@Param() param) {
         const commande = await this.service.deleteCommande(param.id);
