@@ -18,6 +18,6 @@ import { CommandeModule } from './commande/commande.module';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer){
     consumer.apply(ImageMiddleware)
-            .forRoutes('produits/update/imagesAdd/:id', 'produits/add', 'users/update/:id');
+            .forRoutes('produits/update/imagesAdd/:id', 'users/update/:id');
   }
 }

@@ -103,81 +103,47 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     pdfDoc.end();
   }
 
-  @Post('add')
+  @Post()
   //@UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('user', 'admin')
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({})
-  async create(@Body() addProduitsDto: ProduitsDto, @Request() req, @Res() res) {
-    const response = [];
-    let filename;
-    let nomImage;
-    nomImage = req.body.images.map(file => file.original.filename);
-    await new Promise((resolve) => {
-      let that = this;
-      setTimeout(function(){
-        let dimensions = sizeOf('uploads/produits/'+nomImage[0]);
-        if(dimensions.width < 200 && dimensions.height < 300){
-          let image = nomImage[0].split("-")
-          glob(`**uploads/produits/${image[0]}*`, function(err, files) {
-              if (err) throw err;
-              for (const file of files) {
-                  fs.unlink(file);
-              }
-          });
-          res.send("error: width < 180 or height < 240");          
-        } else {
-            filename = req.body.images.map(file => file.original.filename.split("-"));
-            for(let i = 0; i < filename.length; i++){
-              response.push(filename[i][0]);
-            }
-      
-            addProduitsDto.images = response;    
-      
-            let data = {};
-            let detail_fabrication = {};
-            let detail_physique = {};
-            let prix = {};
-            let historique = [];
-            let creer = {};
-      
-            detail_fabrication["numero_model"] = addProduitsDto.numero_model;
-            detail_fabrication["date_sortie"] = addProduitsDto.date_sortie;
-      
-            detail_physique["poids"] = addProduitsDto.poids;
-            detail_physique["longueur"] = addProduitsDto.longueur;
-            detail_physique["largeur"] = addProduitsDto.largeur;
-            detail_physique["taille"] = addProduitsDto.taille;
-            detail_physique["couleur"] = addProduitsDto.couleur;
-            
-            prix["prix_normal"] = addProduitsDto.prix_normal;
-            prix["prix_promotion"] = addProduitsDto.prix_promotion;
-      
-            creer["createur"] = addProduitsDto.createur;
-            creer["date_creation"] = addProduitsDto.date_creation;
-      
-            historique.push({"creer": creer});
-      
-            data["titre"] = addProduitsDto.titre;
-            data["description"] = addProduitsDto.description;
-            data["marque"] = addProduitsDto.marque;
-            data["categorie"] = addProduitsDto.categorie;
-            data["quantite"] = addProduitsDto.quantite;
-            data["images"] = addProduitsDto.images;
-            data["detail_fabrication"] = detail_fabrication;
-            data["detail_physique"] = detail_physique;
-            data["etat"] = addProduitsDto.etat;
-            data["prix"] = prix;
-            data["garantie"] = addProduitsDto.garantie;
-            data["provenance"] = addProduitsDto.provenance;
-            data["historique"] = historique;
-            
-            res.send("Produit ajouté");
-            return that.produitsService.createProduit(data);
-        }
-      }, 500);
-    });
+  async create(@Body() addProduitsDto: ProduitsDto) {  
+    let data = {};
+    let detail_fabrication = {};
+    let detail_physique = {};
+    let prix = {};
+    let historique = [];
+    let creer = {};
+    detail_fabrication["numero_model"] = addProduitsDto.numero_model;
+    detail_fabrication["date_sortie"] = addProduitsDto.date_sortie;
+    detail_physique["poids"] = addProduitsDto.poids;
+    detail_physique["longueur"] = addProduitsDto.longueur;
+    detail_physique["largeur"] = addProduitsDto.largeur;
+    detail_physique["taille"] = addProduitsDto.taille;
+    detail_physique["couleur"] = addProduitsDto.couleur;
+    
+    prix["prix_normal"] = addProduitsDto.prix_normal;
+    prix["prix_promotion"] = addProduitsDto.prix_promotion;
+    creer["createur"] = addProduitsDto.createur;
+    creer["date_creation"] = addProduitsDto.date_creation;
+    historique.push({"creer": creer});
+    data["titre"] = addProduitsDto.titre;
+    data["description"] = addProduitsDto.description;
+    data["marque"] = addProduitsDto.marque;
+    data["categorie"] = addProduitsDto.categorie;
+    data["quantite"] = addProduitsDto.quantite;
+    data["images"] = addProduitsDto.images;
+    data["detail_fabrication"] = detail_fabrication;
+    data["detail_physique"] = detail_physique;
+    data["etat"] = addProduitsDto.etat;
+    data["prix"] = prix;
+    data["garantie"] = addProduitsDto.garantie;
+    data["provenance"] = addProduitsDto.provenance;
+    data["historique"] = historique;
+    
+    return this.produitsService.createProduit(data);
   }
 
   @Put('/:id')
