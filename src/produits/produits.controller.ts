@@ -116,6 +116,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     let prix = {};
     let historique = [];
     let creer = {};
+    let date = new Date().toISOString().slice(0, 10);
     detail_fabrication["numero_model"] = addProduitsDto.numero_model;
     detail_fabrication["date_sortie"] = addProduitsDto.date_sortie;
     detail_physique["poids"] = addProduitsDto.poids;
@@ -127,7 +128,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     prix["prix_normal"] = addProduitsDto.prix_normal;
     prix["prix_promotion"] = addProduitsDto.prix_promotion;
     creer["createur"] = addProduitsDto.createur;
-    creer["date_creation"] = addProduitsDto.date_creation;
+    creer["date_creation"] = date;
     historique.push({"creer": creer});
     data["titre"] = addProduitsDto.titre;
     data["description"] = addProduitsDto.description;
@@ -158,6 +159,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       let champs = {};
       let modifier = {};
       let modificationArray = [];
+      let date_modification = new Date().toISOString().slice(0, 10);
       
       let key = Object.keys(vraiBody);
       for(let i = 0; i < key.length; i++){
@@ -167,7 +169,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       }
 
       modifier["modificateur"] = vraiBody.modificateur;
-      modifier["date_modification"] = vraiBody.date_modification;
+      modifier["date_modification"] = date_modification;
       modifier["champs"] = champs;
       modificationArray.push(modifier);
       
@@ -218,9 +220,10 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     @ApiOkResponse({})
     public async updateLancement(@Param() param, @Body() body){
       let lancer = {};
+      let date_lancement = new Date().toISOString().slice(0, 10);
 
       lancer["lanceur"] = body.lanceur;
-      lancer["date_lancement"] = body.date_lancement;
+      lancer["date_lancement"] = date_lancement;
       
       const produits = await this.produitsService.updateLancer(param.id, lancer);
       return produits;
@@ -234,9 +237,10 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     @ApiOkResponse({})
     public async updateArchive(@Param() param, @Body() body){
       let archive = {};
+      let date_archive = new Date().toISOString().slice(0, 10);
 
       archive["archiveur"] = body.archiveur;
-      archive["date_archive"] = body.date_archive;
+      archive["date_archive"] = date_archive;
       
       const produits = await this.produitsService.updateArchiver(param.id, archive);
       return produits;
