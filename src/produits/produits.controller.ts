@@ -42,7 +42,7 @@ public async getProduitsCustomised(@Param('page', new ParseIntPipe()) page: numb
       populate: 'categorie',
   }
   return await this.produitsModel.paginate({}, options, (err, result) => {
-    res.send({Produits: result.docs, TotalProduis: result.totalDocs, TotalPages: result.totalPages});
+    res.send({produits: result.docs, TotalProduits: result.totalDocs, TotalPages: result.totalPages});
   });
 }
 
