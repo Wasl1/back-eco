@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 let mexp = require('mongoose-elasticsearch-xp');
+let pageinate = require('mongoose-paginate-v2');
 
 export const ProduitsSchema = new mongoose.Schema({
     titre: {
@@ -70,5 +71,6 @@ export const ProduitsSchema = new mongoose.Schema({
 });
 
 ProduitsSchema.plugin(mexp);
+ProduitsSchema.plugin(pageinate);
 
 

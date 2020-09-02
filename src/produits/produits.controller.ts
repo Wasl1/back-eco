@@ -7,6 +7,9 @@ import { AuthGuard } from "@nestjs/passport";
 import { RolesGuard } from "src/auth/guards/roles.guard";
 import { Roles } from "src/auth/decorators/roles.decorator";
 import { ApiBearerAuth, ApiOkResponse } from "@nestjs/swagger";
+import { InjectModel } from "@nestjs/mongoose";
+import { ProduitsInterface } from "./interface/produits.interface";
+import { Model } from 'mongoose';
 var path = require('path');
 var sizeOf = require("image-size");
 const fs = require('fs-extra');
@@ -14,7 +17,9 @@ var glob = require("glob");
 
 @Controller("produits")
 export class ProduitsController {
-  constructor(private produitsService: ProduitsService, private historicSeachService: HistoricSearchService ) {}
+  constructor(private produitsService: ProduitsService, 
+    private historicSeachService: HistoricSearchService,
+    @InjectModel('Produits') private produitsModel: Model<ProduitsInterface> ) {}
 
 @Get()
 public async getAllProduits() {
@@ -29,10 +34,16 @@ public async getLastProduits() {
 }
 
 @Get('getProduitsCustomised/:page')
-public async getProduitsCustomised(@Param('page', new ParseIntPipe()) page: number) {
-  page = page - 1;
-  const produits = await this.produitsService.getProduitsCustomised(page);
-  return { produits, total: produits.length};
+public async getProduitsCustomised(@Param('page', new ParseIntPipe()) page: number, @Res() res){
+  let options = {
+      page: page, 
+      limit: 20, 
+      sort: {_id: -1},
+      populate: 'categorie',
+  }
+  return await this.produitsModel.paginate({}, options, (err, result) => {
+    res.send({Produits: result.docs, TotalProduis: result.totalDocs, TotalPages: result.totalPages});
+  });
 }
 
 @Get('getUserWhoVoteProduit/:id_produits')
