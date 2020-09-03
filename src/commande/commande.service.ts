@@ -15,19 +15,38 @@ export class CommandesService {
         @InjectModel('commande') private commandesModel: Model<commandesInterfaces>,
     ){}
 
-    async createCommande(createDTO: CommandeDTO): Promise<commandesInterfaces>{
+    async createCommande(createDTO: any){
         const commandeCreated = new this.commandesModel(createDTO);
         return await commandeCreated.save();
     }
-
     async getAll(): Promise<commandesInterfaces[]>{
         const commande = await this.commandesModel.find()
         .populate('id_user')
         .populate('commandes.id_produit')
         .exec();
         return commande;
-    }
+    }  
     
+    async getLastCommande(): Promise<commandesInterfaces[]>{
+        const commande = await this.commandesModel.find()
+        .sort({_id: 'asc'})
+        .populate('id_user')
+        .populate('commandes.id_produit')
+        .limit(2)
+        .exec();
+        return commande;
+    }
+
+    async getFirstCommande(): Promise<commandesInterfaces[]>{
+        const commande = await this.commandesModel.find()
+        .sort({_id: 'desc'})
+        .populate('id_user')
+        .populate('commandes.id_produit')
+        .limit(2)
+        .exec();
+        return commande;
+    }
+
     async getCommande(commandeID: number): Promise<commandesInterfaces[]> {
         // const User = mongoose.model('User', UsersSchema);
         const commande = await this.commandesModel.findById(commandeID)
@@ -36,7 +55,15 @@ export class CommandesService {
         .exec();
         return commande;
     }   
-    
+
+    async getCommandeCustomised(page: number): Promise<commandesInterfaces[]> {
+        return await this.commandesModel.find({}, null, {limit: 2, skip: page})
+        .sort('-_id')
+        .populate('id_user')
+        .populate('commandes.id_produit')
+        .exec();
+    }
+
     async updateCommande(commandeID, createPostDTO: CommandeDTO): Promise<commandesInterfaces> {
         const editedCommande = await this.commandesModel.findByIdAndUpdate(commandeID, createPostDTO, { new: true });
         return editedCommande;

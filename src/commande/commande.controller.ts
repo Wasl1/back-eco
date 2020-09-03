@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch,Req,Res, Delete, Put, ParseIntPipe } from '@nestjs/common';
 import { CommandesService } from './commande.service';
 import { CommandeDTO } from './dto/commandes.dto';
 import { commandesSchema } from './schemas/commandes.schema';
@@ -15,17 +15,71 @@ constructor(private readonly service:CommandesService){}
   }
 
 
-  @Get('/:CommandeID')
-  public async getCommande(@Param() param){
-    return await this.service.getCommande(param.CommandeID);
-      
+  @Get('getFirstCommade')
+  async GetFirstCommade(){
+    return await this.service.getFirstCommande();
   }
 
+  
+  @Get('getLastCommande')
+  async GetLastCommande(){
+    return await this.service.getLastCommande();
+  }
+
+  @Get('/:CommandeID')
+  public async getCommande(@Param() param){
+    return await this.service.getCommande(param.CommandeID);   
+  }
+
+  //-- /:page
+ 
+  @Get('getCommandesCustomised')
+  public async getCommandeCustomised(@Param('page', new ParseIntPipe()) page: number) {
+  page = page - 1;
+  const commande = await this.service.getCommandeCustomised(page);
+  return commande;
+  }
 
   @Post()
-  async createCommande(@Body() createDTO: CommandeDTO) {
-      const commande = await this.service.createCommande(createDTO);
-      return commande;
+  async createCommande(@Body() createDTO: CommandeDTO,@Res() res) {
+      //const commande = await this.service.createCommande(createDTO);
+      //return commande;
+
+let data = {};
+let tracage = {};
+let payment= {};
+let commandes = {};
+
+
+tracage["email"] = createDTO.email;
+tracage["tel"] = createDTO.tel;
+tracage["estimation_delivrance"] = createDTO.estimation_delivrance;
+
+payment["methode"] = createDTO.methode;
+payment["transaction_id"] = createDTO.transaction_id;
+payment["amount"] = createDTO.amount;
+payment["codepromo"] = createDTO.codepromo;
+
+
+commandes["id_produit"] = createDTO.id_user;
+commandes["title"] = createDTO.title;
+commandes["quantite"] = createDTO.quantite;
+commandes["prix_unitaire"] = createDTO.prix_unitaire;
+commandes["curency"] = createDTO.curency;
+
+
+data["id_user"] = createDTO.id_user;
+data["client"] = createDTO.client;
+data["adresse"] = createDTO.adresse;
+data["note_delivrance"] = createDTO.note_delivrance;
+data["etat"] = createDTO.etat;
+data["tracage"] = tracage;
+data["payment"] = payment;
+data["commandes"] = commandes;
+
+res.send("commandes ajouté");
+return this.service.createCommande(data);
+
   }
 
 
