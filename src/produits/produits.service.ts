@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ProduitsInterface } from './interface/produits.interface';
 import { debug } from 'console';
+import { nextTick } from 'process';
+import { response } from 'express';
 
 @Injectable()
 export class ProduitsService {
@@ -18,10 +20,6 @@ export class ProduitsService {
 
     async getLastProduits(): Promise<ProduitsInterface[]> {
         return await this.produitsModel.find().sort('-_id').populate('categorie').limit(10).exec();
-    }
-
-    async getProduitsCustomised(page: number): Promise<ProduitsInterface[]> {
-        return await this.produitsModel.find({}, null, {limit: 20, skip: page}).populate('categorie').sort('-_id').exec();
     }
 
     async getUserWhoVoteProduit(id_produits: number) {
