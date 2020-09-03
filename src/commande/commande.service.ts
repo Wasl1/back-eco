@@ -32,7 +32,7 @@ export class CommandesService {
         .sort({_id: 'asc'})
         .populate('id_user')
         .populate('commandes.id_produit')
-        .limit(2)
+        .limit(20)
         .exec();
         return commande;
     }
@@ -42,7 +42,7 @@ export class CommandesService {
         .sort({_id: 'desc'})
         .populate('id_user')
         .populate('commandes.id_produit')
-        .limit(2)
+        .limit(20)
         .exec();
         return commande;
     }
@@ -57,7 +57,7 @@ export class CommandesService {
     }   
 
     async getCommandeCustomised(page: number): Promise<commandesInterfaces[]> {
-        return await this.commandesModel.find({}, null, {limit: 2, skip: page})
+        return await this.commandesModel.find({}, null, {limit: 20, skip: page})
         .sort('-_id')
         .populate('id_user')
         .populate('commandes.id_produit')
