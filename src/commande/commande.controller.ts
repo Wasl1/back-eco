@@ -33,7 +33,7 @@ constructor(private readonly service:CommandesService){}
 
   //-- /:page
  
-  @Get('getCommandesCustomised')
+  @Get('getCommandesCustomised/:page')
   public async getCommandeCustomised(@Param('page', new ParseIntPipe()) page: number) {
   page = page - 1;
   const commande = await this.service.getCommandeCustomised(page);
