@@ -232,14 +232,17 @@ export class UsersController {
                         });
                         res.send("error: width < 180 or height < 240");
                     } else{
+                        let avatarDb = avatar.split(".");
+                        avatar = avatarDb[0];
                         glob(`**uploads/avatar/${avatar}*`, function(err, files) {
                             if (err) throw err;
                             for (const file of files) {
                                 fs.unlink(file);
                             }
                         });
-                        filename = req.body.avatar.map(file => file.hd.filename.split("-"));
-                        body['avatar'] = filename[0][0];
+                        filename = req.body.avatar.map(file => file.original.filename.split(/[-.]+/));
+                        body['avatar'] = filename[0][0]+'.'+filename[0][2];
+                        
                         const user = that.usersService.update(param.id, body);
                         res.send("User modifié");
                         return user;
@@ -252,7 +255,7 @@ export class UsersController {
             const avatar = await this.usersService.findById(param.id);
             body["avatar"] = avatar.avatar;
             const user = await this.usersService.update(param.id, body);
-            res.send("User modifié");
+            res.send({message: "User modifié"});
             return user;
         }
     }
@@ -263,7 +266,7 @@ export class UsersController {
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
-    public async deleteUser(@Param() param) {
+    public async deleteUser(@Param() param, @Res() res) {
         const user = await this.usersService.findById(param.id);
         let avatar = user['avatar'];
         glob(`**uploads/avatar/${avatar}*`, function(err, files) {
@@ -272,6 +275,7 @@ export class UsersController {
                 fs.unlink(file);
             }
         });
+        res.send({message: "User suprrimé"});
         return this.usersService.delete(param.id);
     }
 }

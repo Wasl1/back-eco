@@ -282,16 +282,15 @@ public async getImage(@Param('imgpath') images, @Res() res) {
             });
             res.send("error: width < 180 or height < 240");
           } else {
-              filename = req.body.images.map(file => file.original.filename.split("-"));
+              filename = req.body.images.map(file => file.original.filename.split(/[-.]+/));
               for(let i = 0; i < filename.length; i++){
-                response.push(filename[i][0]);
+                response.push(filename[i][0]+'.'+filename[i][2]);
               }
-            
               const produits = that.produitsService.updateAddImage(param.id, response);
-              res.send("Images ajoutés");
+              res.send({message: "Images ajoutées"});
               return produits;
           } 
-        }, 1000);
+        }, 1500);
       });  
     }
 
@@ -304,11 +303,10 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     public async deleteImages(@Param() param, @Body() body){
       let images = [];
       images = body.images;
-      var glob = require("glob");
-      const fs = require('fs-extra');
        
       for (var i = 0; i < images.length; i++){
-        glob(`**uploads/produits/${body.images[i]}*`, function(err, files) {
+        let imagesBd = images[i].split(".");        
+        glob(`**uploads/produits/${imagesBd[0]}*`, function(err, files) {
             if (err) throw err;
             for (const file of files) {
               fs.unlink(file);
@@ -425,21 +423,21 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
-    public async deleteProduits(@Param() param) {
+    public async deleteProduits(@Param() param, @Res() res) {
         const produit = await this.produitsService.findByIdProduit(param.id);
         let images = produit['images'];
-        var j = images.length;
-        const fs = require('fs-extra');
-        var glob = require("glob");
+        let j = images.length;
        
-        for (var i = 0; i < j; i++){
-          glob(`**uploads/produits/${images[i]}*`, function(err, files) {
+        for (let i = 0; i < j; i++){
+          let imagesDb = images[i].split(".");
+          glob(`**uploads/produits/${imagesDb[0]}*`, function(err, files) {
               if (err) throw err;
               for (const file of files) {
                 fs.unlink(path.join(file));
               }
           });
         }
+        res.send({message: "Produit suprrimé"});
         return this.produitsService.deleteProduit(param.id);
     }
 
@@ -449,11 +447,10 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
-    public async deleteManyProduits(@Body() body){
+    public async deleteManyProduits(@Body() body, @Res() res){
       let id_produits = [];
       id_produits = body.id_produits;
       let j = id_produits.length;
-      var glob = require("glob");
 
       for(var i = 0; i < j; i++){        
         let produit = await this.produitsService.findByIdProduit(id_produits[i]);
@@ -461,7 +458,8 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         let image_nombres = images.length;
         const fs = require('fs-extra');
         for(let a = 0; a < image_nombres; a++){
-          glob(`**uploads/produits/${images[a]}*`, function(err, files) {
+          let imagesDb = images[a].split(".");
+          glob(`**uploads/produits/${imagesDb[0]}*`, function(err, files) {
             if (err) throw err;
             for (const file of files) {
               fs.unlink(path.join(file));
@@ -469,6 +467,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
           });
         }        
       }
+      res.send({message: "Produits suprrimés"});
       return this.produitsService.deleteMultipleProduits(id_produits);
     }
 }
