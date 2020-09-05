@@ -2,6 +2,10 @@ import * as mongoose from 'mongoose';
 
 var autoIncrement = require('simple-mongoose-autoincrement');
 
+/*id_produit:{
+    type: mongoose.Schema.Types.ObjectId, ref:'User'
+},*/
+
 export const commandesSchema = new mongoose.Schema({
     numero_commande: {
         type: Number,
@@ -46,7 +50,6 @@ export const commandesSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-
     tracage:{
         email: {
             type: String,
@@ -59,7 +62,7 @@ export const commandesSchema = new mongoose.Schema({
         },
 
         estimation_delivrance: {
-            type: Date,
+            type: String,
             required: true,
         }
     },
@@ -115,9 +118,8 @@ export const commandesSchema = new mongoose.Schema({
                 required: true,
             }
         },
-   ],
-
-},
+   ]
+    },
 
 {
     toJSON: {
