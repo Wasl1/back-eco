@@ -27,7 +27,7 @@ export const uploadProductImages = upload.fields([
 export const resizerImages = async (req, res, next) => {
 
   const filename = {
-    avatar: `avatar`,
+    avatar: `avatars`,
     images: `produits`,
   };
 

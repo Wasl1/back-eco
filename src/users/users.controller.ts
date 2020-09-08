@@ -221,7 +221,7 @@ export class UsersController {
             await new Promise((resolve) => {
                 let that = this;
                 setTimeout(function(){
-                    let dimensions = sizeOf('uploads/avatar/'+filename[0]);
+                    let dimensions = sizeOf('uploads/avatars/'+filename[0]);
                     if(dimensions.width < 200 && dimensions.height < 300){
                         let image = filename[0].split("-")
                         glob(`**uploads/avatar/${image[0]}*`, function(err, files) {
@@ -232,7 +232,7 @@ export class UsersController {
                         });
                         res.send("error: width < 180 or height < 240");
                     } else{
-                        glob(`**uploads/avatar/${avatar}*`, function(err, files) {
+                        glob(`**uploads/avatars/${avatar}*`, function(err, files) {
                             if (err) throw err;
                             for (const file of files) {
                                 fs.unlink(file);
