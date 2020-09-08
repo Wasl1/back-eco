@@ -44,14 +44,14 @@ export class ProduitsService {
     }
 
     async updateLancer(ID: number, lancement:any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet:{historique: {lancer: lancement}}}, {safe: true, upsert:true}, err =>{
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet:{historique: {lancer: lancement}},"etat": "live"}, {safe: true, upsert:true}, err =>{
             if(err){console.log(err);
             }
         })        
     }
 
     async updateArchiver(ID: number, archive:any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet:{historique: {archiver: archive}}}, {safe: true, upsert:true}, err =>{
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet:{historique: {archiver: archive}}, "etat": "archived"}, {safe: true, upsert:true}, err =>{
             if(err){console.log(err);
             }
         })        

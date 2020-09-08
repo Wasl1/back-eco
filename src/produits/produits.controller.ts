@@ -138,15 +138,14 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     
     prix["prix_normal"] = addProduitsDto.prix_normal;
     prix["prix_promotion"] = addProduitsDto.prix_promotion;
-    creer["createur"] = addProduitsDto.createur;
-    creer["date_creation"] = date;
+    creer["acteur"] = addProduitsDto.acteur;
+    creer["date"] = date;
     historique.push({"creer": creer});
     data["titre"] = addProduitsDto.titre;
     data["description"] = addProduitsDto.description;
     data["marque"] = addProduitsDto.marque;
     data["categorie"] = addProduitsDto.categorie;
     data["quantite"] = addProduitsDto.quantite;
-    data["images"] = addProduitsDto.images;
     data["detail_fabrication"] = detail_fabrication;
     data["detail_physique"] = detail_physique;
     data["etat"] = addProduitsDto.etat;
@@ -231,10 +230,10 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     @ApiOkResponse({})
     public async updateLancement(@Param() param, @Body() body){
       let lancer = {};
-      let date_lancement = new Date().toISOString().slice(0, 10);
+      let date = new Date().toISOString().slice(0, 10);
 
-      lancer["lanceur"] = body.lanceur;
-      lancer["date_lancement"] = date_lancement;
+      lancer["acteur"] = body.acteur;
+      lancer["date"] = date;
       
       const produits = await this.produitsService.updateLancer(param.id, lancer);
       return produits;
@@ -248,10 +247,10 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     @ApiOkResponse({})
     public async updateArchive(@Param() param, @Body() body){
       let archive = {};
-      let date_archive = new Date().toISOString().slice(0, 10);
+      let date = new Date().toISOString().slice(0, 10);
 
-      archive["archiveur"] = body.archiveur;
-      archive["date_archive"] = date_archive;
+      archive["acteur"] = body.acteur;
+      archive["date"] = date;
       
       const produits = await this.produitsService.updateArchiver(param.id, archive);
       return produits;
