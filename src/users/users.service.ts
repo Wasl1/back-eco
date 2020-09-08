@@ -19,8 +19,8 @@ export class UsersService {
         return await this.userModel.findOne(options).exec();
     }
 
-    async findOneByUsername(username): Model<Users> {
-        return await this.userModel.findOne({username: username});
+    async findOneByUsername(filter = {}): Model<Users> {
+        return await this.userModel.findOne(filter);
     }
 
     async findAll(): Promise<Users[]> {
