@@ -221,7 +221,7 @@ export class UsersController {
             await new Promise((resolve) => {
                 let that = this;
                 setTimeout(function(){
-                    let dimensions = sizeOf('uploads/avatar/'+filename[0]);
+                    let dimensions = sizeOf('uploads/avatars/'+filename[0]);
                     if(dimensions.width < 200 && dimensions.height < 300){
                         let image = filename[0].split("-")
                         glob(`**uploads/avatar/${image[0]}*`, function(err, files) {
@@ -232,7 +232,7 @@ export class UsersController {
                         });
                         res.send("error: width < 180 or height < 240");
                     } else{
-                        glob(`**uploads/avatar/${avatar}*`, function(err, files) {
+                        glob(`**uploads/avatars/${avatar}*`, function(err, files) {
                             if (err) throw err;
                             for (const file of files) {
                                 fs.unlink(file);
@@ -263,7 +263,7 @@ export class UsersController {
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
-    public async deleteUser(@Param() param) {
+    public async deleteUser(@Param() param, @Res() res) {
         const user = await this.usersService.findById(param.id);
         let avatar = user['avatar'];
         glob(`**uploads/avatar/${avatar}*`, function(err, files) {
@@ -272,6 +272,7 @@ export class UsersController {
                 fs.unlink(file);
             }
         });
+        res.send({message: "User suprrimé"});
         return this.usersService.delete(param.id);
     }
 }

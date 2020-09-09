@@ -4,6 +4,7 @@ import { Users } from './interface/users.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Model } from 'mongoose';
 import { debug } from 'console';
+import { uploadProductImages, resizerImages} from "src/ImageConverter/ImageStorage";
 
 @Injectable()
 export class UsersService {
@@ -18,8 +19,8 @@ export class UsersService {
         return await this.userModel.findOne(options).exec();
     }
 
-    async findOneByUsername(username): Model<Users> {
-        return await this.userModel.findOne({username: username});
+    async findOneByUsername(filter = {}): Model<Users> {
+        return await this.userModel.findOne(filter);
     }
 
     async findAll(): Promise<Users[]> {
@@ -58,5 +59,25 @@ export class UsersService {
             return hit['_source'];
         }))
         .catch(err => { throw new HttpException(err, 500); });
+    }
+
+    async useUploadResize(req, res, next){
+        await new Promise((resolve, reject) => {
+            uploadProductImages(req, res, err => err ? reject(err) : resolve());
+        });
+
+        await new Promise((resolve, reject) => {
+            resizerImages(req, res, err => err ? reject(err) : resolve());
+        });
+        return next();
+    }
+
+    async useResize(req, res){
+        await new Promise((resolve, reject) => {
+            uploadProductImages(req, res, err => err ? reject(err) : resolve());
+        });
+        await new Promise((resolve, reject) => {
+            resizerImages(req, res, err => err ? reject(err) : resolve());
+        });
     }
 }

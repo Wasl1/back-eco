@@ -3,8 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ProduitsInterface } from './interface/produits.interface';
 import { debug } from 'console';
-import { nextTick } from 'process';
-import { response } from 'express';
 
 @Injectable()
 export class ProduitsService {
@@ -46,14 +44,14 @@ export class ProduitsService {
     }
 
     async updateLancer(ID: number, lancement:any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet:{historique: {lancer: lancement}}}, {safe: true, upsert:true}, err =>{
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet:{historique: {lancer: lancement}},"etat": "live"}, {safe: true, upsert:true}, err =>{
             if(err){console.log(err);
             }
         })        
     }
 
     async updateArchiver(ID: number, archive:any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet:{historique: {archiver: archive}}}, {safe: true, upsert:true}, err =>{
+        return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet:{historique: {archiver: archive}}, "etat": "archived"}, {safe: true, upsert:true}, err =>{
             if(err){console.log(err);
             }
         })        
@@ -69,8 +67,6 @@ export class ProduitsService {
     async updateAddImage(ID: number, pic_name: any){
         return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {images: pic_name}}, {safe: true, upsert: true}, err =>{
             if(err){console.log(err);
-            }else{
-                console.log("Nouvelles images ajoutées");
             }
         }).exec();
     }
@@ -78,8 +74,6 @@ export class ProduitsService {
     async updateDeleteImage(ID: number, pic_name: any){
         return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {"$in": pic_name}}}, {safe: true, multi: true}, err =>{
             if(err){console.log(err);
-            }else{
-                console.log("Images supprimées");
             }
         }).exec();
     }
@@ -87,8 +81,6 @@ export class ProduitsService {
     async updateFavorisAdd(ID: number, id_user: any){
         return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {favoris: id_user}}, {safe: true, upsert: true}, err => {
             if(err){console.log(err);
-            }else{
-                console.log("favoris ajouté");
             }
         }).exec();
     }
@@ -96,8 +88,6 @@ export class ProduitsService {
     async updateFavorisRemove(ID: number, id_user: any){
         return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {favoris: id_user}}, {safe: true, multi: true}, err => {
             if(err){console.log(err);
-            }else{
-                console.log("favoris annulé");
             }
         }).exec();
     }
@@ -105,8 +95,6 @@ export class ProduitsService {
     async updateVoteAdd(ID: number, id_user: any){
         return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet: {vote: id_user}}, {safe: true, upsert: true}, err => {
             if(err){console.log(err);
-            }else{
-                console.log("vote ajouté");
             }
         }).exec();
     }
@@ -114,8 +102,6 @@ export class ProduitsService {
     async updateVoteRemove(ID: number, id_user: any){
         return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {vote: id_user}}, {safe: true, multi: true}, err => {
             if(err){console.log(err);
-            }else{
-                console.log("vote annulé");
             }
         }).exec();
     }
@@ -135,7 +121,6 @@ export class ProduitsService {
     async deleteProduit(ID: number): Promise<string> {
         try {
             await this.produitsModel.findByIdAndRemove(ID).exec();
-            return 'Le produit a été supprimé';
         }
         catch (err){
             debug(err);
@@ -144,8 +129,7 @@ export class ProduitsService {
     }
 
     async deleteMultipleProduits(id_produits: any): Promise<string>{
-        await this.produitsModel.deleteMany({_id: {$in: id_produits}}).exec();
-        return 'Produits supprimés';
+        return await this.produitsModel.deleteMany({_id: {$in: id_produits}}).exec();
     }
 
     async searchProduit(query: string){

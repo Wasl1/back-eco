@@ -23,7 +23,7 @@ export class  ProduitsDto {
     readonly provenance : string;
     favoris: any;
     
-    readonly createur: mongoose.Schema.Types.ObjectId;
+    readonly acteur: mongoose.Schema.Types.ObjectId;
     readonly date_creation: Date;
     readonly lanceur: string;
     readonly date_lancement: Date;

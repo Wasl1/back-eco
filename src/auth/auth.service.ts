@@ -21,7 +21,11 @@ export class AuthService {
     }
 
     async login(req: Request, loginUserDto: LoginUserDto) {
-      const user = await this.usersService.findOneByUsername(loginUserDto.username);
+      const { username, password } = loginUserDto;
+      const user = await this.usersService.findOneByUsername({ username });
+      if (!user) {
+        throw new HttpException('Username incorrect', HttpStatus.OK);
+      }
       await this.checkPassword(loginUserDto.password, user);
       await this.passwordsAreMatch(user);
       return {
