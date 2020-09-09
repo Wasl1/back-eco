@@ -2,12 +2,15 @@ import { Controller, Get, Post, Body, Param, Patch,Req,Res, Delete, Put, ParseIn
 import { CommandesService } from './commande.service';
 import { CommandeDTO } from './dto/commandes.dto';
 import { commandesSchema } from './schemas/commandes.schema';
-
+import {commandesInterfaces} from './interfaces/commandes.interfaces'
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Controller('commande')
 export class CommandeController {
 
-constructor(private readonly service:CommandesService){}
+constructor(private readonly service:CommandesService,
+  @InjectModel('commande') private commandeModel: Model<commandesInterfaces> ){}
 
   @Get()
   async GetAll(){
@@ -33,11 +36,27 @@ constructor(private readonly service:CommandesService){}
 
   //-- /:page
  
-  @Get('getCommandesCustomised/:page')
+  /*@Get('getCommandesCustomised/:page')
   public async getCommandeCustomised(@Param('page', new ParseIntPipe()) page: number) {
   page = page - 1;
   const commande = await this.service.getCommandeCustomised(page);
   return commande;
+  }*/
+
+  @Get('getCommandesCustomised/:page')
+  public async getCommandesCustomised(@Param('page', new ParseIntPipe()) page: number, @Res() res){
+  let options = {
+      page: page, 
+      limit: 20, 
+      sort: {_id: -1},
+      populate: 'id_user',
+  }
+  let produits = {
+    populate: 'commandes.id_produit',
+}
+  return await this.commandeModel.paginate({}, options, (err, result) => {
+    res.send({commandes: result.docs, TotalCommandes: result.totalDocs, TotalPages: result.totalPages});
+  });
   }
 
   @Post()
@@ -77,7 +96,7 @@ data["tracage"] = tracage;
 data["payment"] = payment;
 data["commandes"] = commandes;
 
-res.send("commandes ajouté");
+res.send(data);
 return this.service.createCommande(data);
 
   }

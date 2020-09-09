@@ -56,13 +56,13 @@ export class CommandesService {
         return commande;
     }   
 
-    async getCommandeCustomised(page: number): Promise<commandesInterfaces[]> {
+    /*async getCommandeCustomised(page: number): Promise<commandesInterfaces[]> {
         return await this.commandesModel.find({}, null, {limit: 20, skip: page})
         .sort('-_id')
         .populate('id_user')
         .populate('commandes.id_produit')
         .exec();
-    }
+    }*/
 
     async updateCommande(commandeID, createPostDTO: CommandeDTO): Promise<commandesInterfaces> {
         const editedCommande = await this.commandesModel.findByIdAndUpdate(commandeID, createPostDTO, { new: true });
