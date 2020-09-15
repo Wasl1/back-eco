@@ -62,17 +62,6 @@ export class UsersController {
         return results;
     }
 
-    @Get('/recherche/searchUserEs')
-    // @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
-    public async esSearchUsername(@Body('search_user') search_user: string){   
-        const results = await this.usersService.findOneByUsernameEs(search_user);
-        return results;
-    }
-
     @Get('/routes/user')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
