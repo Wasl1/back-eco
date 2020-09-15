@@ -5,7 +5,11 @@ export interface Users {
     readonly refreshToken: string,
     readonly nom: string;
     readonly prenom: string;
+    readonly sexe: string;
     readonly adresse: string;
+    readonly ville: string;
+    readonly pays: string;
+    readonly codePostal: string;
     readonly tel: string;
     readonly roles: [string];
     readonly avatar: string;

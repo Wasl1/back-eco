@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Put, Param, Delete, Query, Res, HttpCode, HttpStatus, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Put, Param, Delete, HttpException, Res, HttpCode, HttpStatus, Request } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
@@ -8,6 +8,7 @@ import { Roles } from './../auth/decorators/roles.decorator';
 import { ApiOkResponse, ApiBearerAuth} from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { async } from 'rxjs/internal/scheduler/async';
+import { uploadProductImages, resizerImages} from "src/ImageConverter/ImageStorage";
 var sizeOf = require("image-size");
 const fs = require('fs-extra');
 var glob = require("glob");
@@ -61,6 +62,17 @@ export class UsersController {
         return results;
     }
 
+    @Get('/recherche/searchUserEs')
+    // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
+    public async esSearchUsername(@Body('search_user') search_user: string){   
+        const results = await this.usersService.findOneByUsernameEs(search_user);
+        return results;
+    }
+
     @Get('/routes/user')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
@@ -91,8 +103,16 @@ export class UsersController {
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
-    public async create(@Body() createUserDto: CreateUserDto) {
-        return await this.usersService.create(createUserDto);
+    public async create(@Body() createUserDto: CreateUserDto, @Body() body) {
+        const username = await this.usersService.findOneByUsernameEs(body.username);
+        const email = await this.usersService.findOneByEmailEs(body.email);
+        if(username[0] == undefined && email[0] == undefined){
+            return await this.usersService.create(createUserDto);
+        } else if (username[0] != undefined){
+            throw new HttpException('Username existe déjà', HttpStatus.OK);
+        } else {
+            throw new HttpException('Email existe déjà', HttpStatus.OK);
+        }
     }
 
     @Post('sendMail')

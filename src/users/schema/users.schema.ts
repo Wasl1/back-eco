@@ -32,7 +32,23 @@ export const UsersSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    sexe: {
+        type: String,
+        required: true
+    },
     adresse: {
+        type: String,
+        required: true
+    },
+    ville: {
+        type: String,
+        required: true
+    },
+    pays: {
+        type: String,
+        required: true
+    },
+    codePostal: {
         type: String,
         required: true
     },

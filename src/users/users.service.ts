@@ -1,4 +1,4 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Users } from './interface/users.interface';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,6 +21,24 @@ export class UsersService {
 
     async findOneByUsername(filter = {}): Model<Users> {
         return await this.userModel.findOne(filter);
+    }
+
+    async findOneByUsernameEs(username: string){
+        return await this.userModel.esSearch({ bool: { must: { wildcard: {username: username} } }})
+        .then(res => res.hits.hits.map(hit => {
+            return hit['_source'];
+        }))
+        .catch(err => { throw new HttpException(err, 500); });
+    
+    }
+
+    async findOneByEmailEs(email: string){
+        return await this.userModel.esSearch({ bool: { must: { wildcard: {email: email} } }})
+        .then(res => res.hits.hits.map(hit => {
+            return hit['_source'];
+        }))
+        .catch(err => { throw new HttpException(err, 500); });
+    
     }
 
     async findAll(): Promise<Users[]> {
@@ -59,25 +77,5 @@ export class UsersService {
             return hit['_source'];
         }))
         .catch(err => { throw new HttpException(err, 500); });
-    }
-
-    async useUploadResize(req, res, next){
-        await new Promise((resolve, reject) => {
-            uploadProductImages(req, res, err => err ? reject(err) : resolve());
-        });
-
-        await new Promise((resolve, reject) => {
-            resizerImages(req, res, err => err ? reject(err) : resolve());
-        });
-        return next();
-    }
-
-    async useResize(req, res){
-        await new Promise((resolve, reject) => {
-            uploadProductImages(req, res, err => err ? reject(err) : resolve());
-        });
-        await new Promise((resolve, reject) => {
-            resizerImages(req, res, err => err ? reject(err) : resolve());
-        });
     }
 }

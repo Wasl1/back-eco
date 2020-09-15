@@ -49,7 +49,7 @@ constructor(private readonly service:CommandesService,
       page: page, 
       limit: 20, 
       sort: {_id: -1},
-      populate: 'id_user',
+      populate: 'commandes.id_produit',
   }
   let produits = {
     populate: 'commandes.id_produit',
