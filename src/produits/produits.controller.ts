@@ -239,6 +239,25 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       return produits;
     }
 
+    @Put('/update/multipleLancement')
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('user', 'admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
+    public async updateMultipleLancement(@Body() body){
+      let id_produits = [];
+      id_produits = body.id_produits;
+      let lancer = {};
+      let date = new Date().toISOString().slice(0, 10);
+
+      lancer["acteur"] = body.acteur;
+      lancer["date"] = date;
+      
+      const produits = await this.produitsService.updateMultipleLancer(id_produits, lancer);
+      return produits;
+    }
+
     @Put('/update/archive/:id')
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
@@ -253,6 +272,25 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       archive["date"] = date;
       
       const produits = await this.produitsService.updateArchiver(param.id, archive);
+      return produits;
+    }
+
+    @Put('/update/multipleArchive')
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles('user', 'admin')
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({})
+    public async updateMultipleArchive(@Body() body){
+      let id_produits = [];
+      id_produits = body.id_produits;
+      let archive = {};
+      let date = new Date().toISOString().slice(0, 10);
+
+      archive["acteur"] = body.acteur;
+      archive["date"] = date;
+      
+      const produits = await this.produitsService.updateMultipleArchiver(id_produits, archive);
       return produits;
     }
 

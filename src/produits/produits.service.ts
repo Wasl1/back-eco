@@ -50,11 +50,19 @@ export class ProduitsService {
         })        
     }
 
+    async updateMultipleLancer(id_produits: any, lancement:any){
+        return await this.produitsModel.updateMany({_id: {$in: id_produits}},{$addToSet:{historique: {lancer: lancement}},"etat": "live"},{multi: true, upsert: true});
+    }
+
     async updateArchiver(ID: number, archive:any){
         return await this.produitsModel.findByIdAndUpdate(ID, {$addToSet:{historique: {archiver: archive}}, "etat": "archived"}, {safe: true, upsert:true}, err =>{
             if(err){console.log(err);
             }
         })        
+    }
+
+    async updateMultipleArchiver(id_produits: any, archive:any){
+        return await this.produitsModel.updateMany({_id: {$in: id_produits}},{$addToSet:{historique: {archiver: archive}}, "etat": "archived"},{multi: true, upsert: true});
     }
 
     async updateModifier(ID: number, modification:any){
