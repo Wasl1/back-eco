@@ -53,7 +53,7 @@ constructor(private readonly service:CommandesService,
 
   @Get('/recherche/searchCommandes')
 
-    public async esSearchUser(@Body('search_commandes') search_commandes: string){   
+    public async esSearchCommandes(@Body('search_commandes') search_commandes: string){   
         const results = await this.service.search_commandes(search_commandes);
         return results;
     }
