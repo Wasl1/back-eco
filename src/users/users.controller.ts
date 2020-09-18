@@ -86,6 +86,25 @@ export class UsersController {
         }
     }
     
+    /*Inscription avec ElasticSearch*/
+    // @Post() 
+    // // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    // @Roles('user', 'admin')
+    // @ApiBearerAuth()
+    // @HttpCode(HttpStatus.OK)
+    // @ApiOkResponse({})
+    // public async create(@Body() createUserDto: CreateUserDto, @Body() body) {
+    //     const username = await this.usersService.findOneByUsernameEs(body.username);
+    //     const email = await this.usersService.findOneByEmailEs(body.email);
+    //     if(username[0] == undefined && email[0] == undefined){
+    //         return await this.usersService.create(createUserDto);
+    //     } else if (username[0] != undefined){
+    //         throw new HttpException('Username existe déjà', HttpStatus.OK);
+    //     } else {
+    //         throw new HttpException('Email existe déjà', HttpStatus.OK);
+    //     }
+    // }
+
     @Post() 
     // @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
@@ -93,11 +112,12 @@ export class UsersController {
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     public async create(@Body() createUserDto: CreateUserDto, @Body() body) {
-        const username = await this.usersService.findOneByUsernameEs(body.username);
-        const email = await this.usersService.findOneByEmailEs(body.email);
-        if(username[0] == undefined && email[0] == undefined){
+        const { username, email } = createUserDto;
+        const usernameFinded = await this.usersService.findOneByUsername({username});
+        const emailFinded = await this.usersService.findOneByUsername({email});
+        if(usernameFinded == null && emailFinded == null){
             return await this.usersService.create(createUserDto);
-        } else if (username[0] != undefined){
+        } else if (usernameFinded != null){
             throw new HttpException('Username existe déjà', HttpStatus.OK);
         } else {
             throw new HttpException('Email existe déjà', HttpStatus.OK);
