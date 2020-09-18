@@ -3,6 +3,8 @@ import * as mongoose from 'mongoose';
 var autoIncrement = require('simple-mongoose-autoincrement');
 let pageinate = require('mongoose-paginate-v2');
 
+let mexp = require('mongoose-elasticsearch-xp');
+
 /*id_produit:{
     type: mongoose.Schema.Types.ObjectId, ref:'User'
 },*/
@@ -137,3 +139,5 @@ export const commandesSchema = new mongoose.Schema({
 
 commandesSchema.plugin(autoIncrement, {field: 'numero_commande'/*with field name*/});
 commandesSchema.plugin(pageinate);
+
+commandesSchema.plugin(mexp);

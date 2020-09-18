@@ -34,22 +34,13 @@ constructor(private readonly service:CommandesService,
     return await this.service.getCommande(param.CommandeID);   
   }
 
-  //-- /:page
- 
-  /*@Get('getCommandesCustomised/:page')
-  public async getCommandeCustomised(@Param('page', new ParseIntPipe()) page: number) {
-  page = page - 1;
-  const commande = await this.service.getCommandeCustomised(page);
-  return commande;
-  }*/
-
   @Get('getCommandesCustomised/:page')
   public async getCommandesCustomised(@Param('page', new ParseIntPipe()) page: number, @Res() res){
   let options = {
       page: page, 
       limit: 20, 
       sort: {_id: -1},
-      populate: 'commandes.id_produit',
+      populate: ['id_user','commandes.id_produit'],
   }
   let produits = {
     populate: 'commandes.id_produit',
@@ -58,6 +49,14 @@ constructor(private readonly service:CommandesService,
     res.send({commandes: result.docs, TotalCommandes: result.totalDocs, TotalPages: result.totalPages});
   });
   }
+
+
+  @Get('/recherche/searchCommandes')
+
+    public async esSearchCommandes(@Body('search_commandes') search_commandes: string){   
+        const results = await this.service.search_commandes(search_commandes);
+        return results;
+    }
 
   @Post()
   async createCommande(@Body() createDTO: CommandeDTO,@Res() res) {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 
 import * as mongoose from 'mongoose';
 import {Model} from 'mongoose';
@@ -56,13 +56,13 @@ export class CommandesService {
         return commande;
     }   
 
-    /*async getCommandeCustomised(page: number): Promise<commandesInterfaces[]> {
-        return await this.commandesModel.find({}, null, {limit: 20, skip: page})
-        .sort('-_id')
-        .populate('id_user')
-        .populate('commandes.id_produit')
-        .exec();
-    }*/
+    async search_commandes(search_commandes: string){
+        return await this.commandesModel.esSearch({ query_string: { query: "*"+search_commandes+"*" }})
+        .then(res => res.hits.hits.map(hit => {
+            return hit['_source'];
+        }))
+        .catch(err => { throw new HttpException(err, 500); });
+    }
 
     async updateCommande(commandeID, createPostDTO: CommandeDTO): Promise<commandesInterfaces> {
         const editedCommande = await this.commandesModel.findByIdAndUpdate(commandeID, createPostDTO, { new: true });
