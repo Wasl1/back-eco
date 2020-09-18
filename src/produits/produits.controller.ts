@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Put, Delete, Res, HttpStatus, ParseIntPipe, Query, Request, UseGuards, HttpCode } from "@nestjs/common";
+import { Controller, Post, Body, Get, Param, Put, Delete, Res, HttpStatus, ParseIntPipe, UseInterceptors, UploadedFiles, UseGuards, HttpCode } from "@nestjs/common";
 import { ProduitsService } from "./produits.service";
 import { ProduitsDto } from "./dto/produits.dto";
 import { HistoricSearchService } from "src/historic-search/historic-search.service";
@@ -10,6 +10,9 @@ import { ApiBearerAuth, ApiOkResponse } from "@nestjs/swagger";
 import { InjectModel } from "@nestjs/mongoose";
 import { ProduitsInterface } from "./interface/produits.interface";
 import { Model } from 'mongoose';
+import { diskStorage } from 'multer';
+import { FilesInterceptor } from "@nestjs/platform-express";
+import { editFileName, resizeImagesProduits } from 'src/ImageConverter/file.util';
 var path = require('path');
 var sizeOf = require("image-size");
 const fs = require('fs-extra');
@@ -300,35 +303,82 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
-    public async addImages(@Param() param, @Request() req, @Res() res){
+    @UseInterceptors(
+      FilesInterceptor('images', 3, {
+        storage: diskStorage({
+          destination: (req: Request, file, cb) =>
+            cb(null, 'uploads/produits'),
+          filename: editFileName,
+        }),
+      }),
+    )
+    public async addImages(@UploadedFiles() files, @Param() param){
       const response = [];
-      let filename;
-      let nomImage;
-      nomImage = req.body.images.map(file => file.original.filename);
-      await new Promise((resolve) => {
-        let that = this;
-        setTimeout(function(){
-          let dimensions = sizeOf('uploads/produits/'+nomImage[0]);
-          if(dimensions.width < 200 && dimensions.height < 300){
-            let image = nomImage[0].split("-")
-            glob(`**uploads/produits/${image[0]}*`, function(err, files) {
-                if (err) throw err;
-                for (const file of files) {
-                    fs.unlink(file);
-                }
-            });
-            res.send("error: width < 180 or height < 240");
-          } else {
-              filename = req.body.images.map(file => file.original.filename.split(/[-.]+/));
-              for(let i = 0; i < filename.length; i++){
-                response.push(filename[i][0]+'.'+filename[i][2]);
-              }
-              const produits = that.produitsService.updateAddImage(param.id, response);
-              res.send({message: "Images ajoutées"});
-              return produits;
-          } 
-        }, 1500);
-      });  
+      let images = [];
+      files.forEach(file => {
+          const [, ext] = file.mimetype.split('/');
+          let dimensions = sizeOf('uploads/produits/'+file.filename);
+          if(dimensions.width < 700 && dimensions.height < 700){
+              glob(`**uploads/produits/${file.filename}*`, function(err, files) {
+                  if (err) throw err;
+                  for (const file of files) {
+                      fs.unlink(file);
+                  }
+              });        
+          } else{
+            resizeImagesProduits(ext, file);
+            const fileResponse = {
+                file: file
+            };
+            response.push(fileResponse);
+            fs.unlink('uploads/produits/'+file.filename);          
+          }
+      });
+      let filename = response.map(file => file.file.filename);
+      filename.forEach(imageName => {
+        const imageObject = {
+          images: imageName.split(".")[0],
+          extension: imageName.split(".")[1]
+        }
+      images.push(imageObject);
+      });      
+
+      if(response.length < files.length && response.length > 0){
+        let originalname = response.map(file => file.file.originalname);
+        let imageBloquees = files.length - response.length;
+        
+        const produits = await this.produitsService.updateAddImage(param.id, images);
+        return {
+          code: '4003',
+          message: 'width < 180 and height < 240',
+          value: [{
+            nbImageAjoutees: response.length,
+            nbImageBloquees: imageBloquees,
+            imageAjoutees: originalname,
+            nomBase: filename,
+            produit: produits
+          }]
+        };
+      } else if(response.length < files.length && response.length == 0){
+        let imageBloquees = files.length - response.length;
+          return {
+            code: '4005',
+            message: 'width < 180 and height < 240',
+            value:[{
+              imageBloquees: imageBloquees
+            }]
+          };
+      } else{
+        const produits = await this.produitsService.updateAddImage(param.id, images);
+        return {
+          code: '4000',
+            message: 'images ajoutées avec success',
+            value: [{
+              imageAjoutees: response.length,
+              produit: produits
+            }]
+        };
+      }
     }
 
     @Put('/update/imagesRemove/:id')
@@ -338,9 +388,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     public async deleteImages(@Param() param, @Body() body){
-      let images = [];
-      images = body.images;
-       
+      let images = body.images;
       for (var i = 0; i < images.length; i++){
         let imagesBd = images[i].split(".");        
         glob(`**uploads/produits/${imagesBd[0]}*`, function(err, files) {
@@ -462,12 +510,12 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     @ApiOkResponse({})
     public async deleteProduits(@Param() param, @Res() res) {
         const produit = await this.produitsService.findByIdProduit(param.id);
-        let images = produit['images'];
+        let images = produit['images'];        
         let j = images.length;
        
         for (let i = 0; i < j; i++){
-          let imagesDb = images[i].split(".");
-          glob(`**uploads/produits/${imagesDb[0]}*`, function(err, files) {
+          let imagesDb = images[i];
+          glob(`**uploads/produits/${imagesDb.images}*`, function(err, files) {
               if (err) throw err;
               for (const file of files) {
                 fs.unlink(path.join(file));
@@ -493,10 +541,9 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         let produit = await this.produitsService.findByIdProduit(id_produits[i]);
         let images = produit['images'];
         let image_nombres = images.length;
-        const fs = require('fs-extra');
         for(let a = 0; a < image_nombres; a++){
-          let imagesDb = images[a].split(".");
-          glob(`**uploads/produits/${imagesDb[0]}*`, function(err, files) {
+          let imagesDb = images[a];
+          glob(`**uploads/produits/${imagesDb.images}*`, function(err, files) {
             if (err) throw err;
             for (const file of files) {
               fs.unlink(path.join(file));

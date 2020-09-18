@@ -12,6 +12,7 @@ export interface Users {
     readonly codePostal: string;
     readonly tel: string;
     readonly roles: [string];
-    readonly avatar: string;
+    readonly avatar: {};
+    readonly extension: string;
     readonly verification: string;
 }

@@ -6,7 +6,6 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProduitsModule } from './produits/produits.module';
 import { HistoricSearchModule } from './historic-search/historic-search.module';
-import { ImageMiddleware } from './ImageConverter/ImageMiddleware';
 import { categorieModule} from './categorie/categorie.module';
 import { CommandeModule } from './commande/commande.module';
 @Module({
@@ -15,9 +14,4 @@ import { CommandeModule } from './commande/commande.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer){
-    consumer.apply(ImageMiddleware)
-            .forRoutes('produits/update/imagesAdd/:id', 'users/update/:id');
-  }
-}
+export class AppModule {}

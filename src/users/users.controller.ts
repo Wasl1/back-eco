@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Put, Param, Delete, HttpException, Res, HttpCode, HttpStatus, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Put, Param, Delete, HttpException, Res, HttpCode, HttpStatus, Request, UseFilters, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
@@ -7,8 +7,10 @@ import { printer, docDefinitionFacture } from "src/templates/template.pdf";
 import { Roles } from './../auth/decorators/roles.decorator';
 import { ApiOkResponse, ApiBearerAuth} from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { async } from 'rxjs/internal/scheduler/async';
-import { uploadProductImages, resizerImages} from "src/ImageConverter/ImageStorage";
+import { HttpExceptionFilter  } from 'src/exception/unauthorizedExceptionFilter';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { editFileName, resizeImagesAvatar } from 'src/ImageConverter/file.util';
 var sizeOf = require("image-size");
 const fs = require('fs-extra');
 var glob = require("glob");
@@ -64,6 +66,7 @@ export class UsersController {
 
     @Get('/routes/user')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
@@ -76,6 +79,7 @@ export class UsersController {
 
     @Get('/routes/admin')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
@@ -234,57 +238,77 @@ export class UsersController {
         pdfDoc.end();
     }
 
-    @Put('/update/:id')
+    @Put('/:id')
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
-    public async updateUSer(@Param() param, @Body() body, @Request() req, @Res() res){
-        if(req.body.avatar){
-            let filename;
-            filename = req.body.avatar.map(file => file.original.filename);            
-            const useravatar = await this.usersService.findById(param.id);
-            let avatar = useravatar['avatar'];
-
-            await new Promise((resolve) => {
-                let that = this;
-                setTimeout(function(){
-                    let dimensions = sizeOf('uploads/avatars/'+filename[0]);
-                    if(dimensions.width < 200 && dimensions.height < 300){
-                        let image = filename[0].split("-")
-                        glob(`**uploads/avatar/${image[0]}*`, function(err, files) {
-                            if (err) throw err;
-                            for (const file of files) {
-                                fs.unlink(file);
-                            }
-                        });
-                        res.send("error: width < 180 or height < 240");
-                    } else{
-                        glob(`**uploads/avatars/${avatar}*`, function(err, files) {
-                            if (err) throw err;
-                            for (const file of files) {
-                                fs.unlink(file);
-                            }
-                        });
-                        filename = req.body.avatar.map(file => file.hd.filename.split("-"));
-                        body['avatar'] = filename[0][0];
-                        const user = that.usersService.update(param.id, body);
-                        res.send("User modifié");
-                        return user;
+    @UseInterceptors(
+      FileInterceptor('avatar', {
+        storage: diskStorage({
+          destination: (req: Request, file, cb) =>
+            cb(null, 'uploads/avatars'),
+          filename: editFileName,
+        }),
+      }),
+    )
+    public async updateUSer(@UploadedFile() file, @Param() param, @Body() body){
+        if (file){
+            const [, ext] = file.mimetype.split('/');
+            let filename = file.filename;
+            let avatar = {};
+            let dimensions = sizeOf('uploads/avatars/'+filename);
+            if(dimensions.width < 180 && dimensions.height < 240){
+                glob(`**uploads/avatars/${file.filename}*`, function(err, files) {
+                    if (err) throw err;
+                    for (const file of files) {
+                        fs.unlink(file);
                     }
-                }, 1500);
+                });    
+                return {
+                    code: '4005',
+                    message: 'width < 180 and height < 240',
+                    value:[{
+                        imageBloquee: file.originalname 
+                    }]
+                };    
+            } else {
+                resizeImagesAvatar(ext, file);
+                fs.unlink('uploads/avatars/'+filename);
+                const useravatar = await this.usersService.findById(param.id);
+                let avatarDb = useravatar['avatar']['avatar'];
 
-            });
-            
-        }else{
-            const avatar = await this.usersService.findById(param.id);
-            body["avatar"] = avatar.avatar;
+                glob(`**uploads/avatars/${avatarDb}*`, function(err, files) {
+                  if (err) throw err;
+                  for (const file of files) {
+                      fs.unlink(file);
+                  }
+                });
+                avatar["avatar"] = filename.split(".")[0];
+                avatar["extension"] = ext;
+                file['avatar'] = avatar;            
+
+                const user = await this.usersService.update(param.id, file);
+                return {
+                  code: '4000',
+                  message: 'avatar ajouté avec success',
+                  value: [
+                      user
+                  ]
+                };      
+            }
+        } else {
             const user = await this.usersService.update(param.id, body);
-            res.send("User modifié");
-            return user;
+            return {
+                code: '4000',
+                message: 'user modifié avec success',
+                value: [
+                    user
+                ]
+              };      
         }
-    }
+    }      
 
     @Delete('/:id')
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -294,13 +318,14 @@ export class UsersController {
     @ApiOkResponse({})
     public async deleteUser(@Param() param, @Res() res) {
         const user = await this.usersService.findById(param.id);
-        let avatar = user['avatar'];
-        glob(`**uploads/avatar/${avatar}*`, function(err, files) {
+        let avatar = user['avatar']['avatar'];
+        glob(`**uploads/avatars/${avatar}*`, function(err, files) {
             if (err) throw err;
             for (const file of files) {
                 fs.unlink(file);
             }
         });
+        
         res.send({message: "User suprrimé"});
         return this.usersService.delete(param.id);
     }

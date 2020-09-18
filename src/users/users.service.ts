@@ -4,7 +4,6 @@ import { Users } from './interface/users.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Model } from 'mongoose';
 import { debug } from 'console';
-import { uploadProductImages, resizerImages} from "src/ImageConverter/ImageStorage";
 
 @Injectable()
 export class UsersService {

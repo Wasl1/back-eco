@@ -62,8 +62,14 @@ export const UsersSchema = new mongoose.Schema({
         default: ['user']
     },
     avatar: {
-        type: String,
-        default: "defaultpic.png"
+        avatar: {
+            type: String,
+            default: "defaultpic"
+        },
+        extension: {
+            type: String,
+            default: "png"
+        }
     },
 });
 UsersSchema.plugin(mexp);

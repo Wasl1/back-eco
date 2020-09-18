@@ -80,7 +80,7 @@ export class ProduitsService {
     }
 
     async updateDeleteImage(ID: number, pic_name: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {"$in": pic_name}}}, {safe: true, multi: true}, err =>{
+        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {images:{"$in": pic_name }}}}, {safe: true, multi: true}, err =>{
             if(err){console.log(err);
             }
         }).exec();
