@@ -318,7 +318,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       files.forEach(file => {
           const [, ext] = file.mimetype.split('/');
           let dimensions = sizeOf('uploads/produits/'+file.filename);
-          if(dimensions.width < 700 && dimensions.height < 700){
+          if(dimensions.width < 180 && dimensions.height < 240){
               glob(`**uploads/produits/${file.filename}*`, function(err, files) {
                   if (err) throw err;
                   for (const file of files) {
@@ -335,13 +335,9 @@ public async getImage(@Param('imgpath') images, @Res() res) {
           }
       });
       let filename = response.map(file => file.file.filename);
-      filename.forEach(imageName => {
-        const imageObject = {
-          images: imageName.split(".")[0],
-          extension: imageName.split(".")[1]
-        }
-      images.push(imageObject);
-      });      
+      filename.forEach(imageName => {        
+        images.push(imageName.split(".")[0]);
+      });            
 
       if(response.length < files.length && response.length > 0){
         let originalname = response.map(file => file.file.originalname);
@@ -349,8 +345,8 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         
         const produits = await this.produitsService.updateAddImage(param.id, images);
         return {
-          code: '4003',
-          message: 'width < 180 and height < 240',
+          code: '4002',
+          message: 'width inférieur à 180 and height inférieur à 240',
           value: [{
             nbImageAjoutees: response.length,
             nbImageBloquees: imageBloquees,
@@ -363,7 +359,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         let imageBloquees = files.length - response.length;
           return {
             code: '4005',
-            message: 'width < 180 and height < 240',
+            message: 'width inférieur à 180 and height inférieur à 240',
             value:[{
               imageBloquees: imageBloquees
             }]
@@ -373,10 +369,9 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         return {
           code: '4000',
             message: 'images ajoutées avec success',
-            value: [{
-              imageAjoutees: response.length,
-              produit: produits
-            }]
+            value: [
+              produits
+            ]
         };
       }
     }
@@ -515,7 +510,9 @@ public async getImage(@Param('imgpath') images, @Res() res) {
        
         for (let i = 0; i < j; i++){
           let imagesDb = images[i];
-          glob(`**uploads/produits/${imagesDb.images}*`, function(err, files) {
+          console.log(imagesDb);
+          
+          glob(`**uploads/produits/${imagesDb}*`, function(err, files) {
               if (err) throw err;
               for (const file of files) {
                 fs.unlink(path.join(file));
@@ -542,8 +539,8 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         let images = produit['images'];
         let image_nombres = images.length;
         for(let a = 0; a < image_nombres; a++){
-          let imagesDb = images[a];
-          glob(`**uploads/produits/${imagesDb.images}*`, function(err, files) {
+          let imagesDb = images[a];          
+          glob(`**uploads/produits/${imagesDb}*`, function(err, files) {
             if (err) throw err;
             for (const file of files) {
               fs.unlink(path.join(file));

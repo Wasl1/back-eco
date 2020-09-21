@@ -239,8 +239,9 @@ export class UsersController {
     }
 
     @Put('/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles('user', 'admin')
+    // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    // @UseFilters(new HttpExceptionFilter())
+    @Roles('admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
@@ -257,7 +258,6 @@ export class UsersController {
         if (file){
             const [, ext] = file.mimetype.split('/');
             let filename = file.filename;
-            let avatar = {};
             let dimensions = sizeOf('uploads/avatars/'+filename);
             if(dimensions.width < 180 && dimensions.height < 240){
                 glob(`**uploads/avatars/${file.filename}*`, function(err, files) {
@@ -268,7 +268,7 @@ export class UsersController {
                 });    
                 return {
                     code: '4005',
-                    message: 'width < 180 and height < 240',
+                    message: 'width inférieur à 180 and height inférieur à 240',
                     value:[{
                         imageBloquee: file.originalname 
                     }]
@@ -277,7 +277,7 @@ export class UsersController {
                 resizeImagesAvatar(ext, file);
                 fs.unlink('uploads/avatars/'+filename);
                 const useravatar = await this.usersService.findById(param.id);
-                let avatarDb = useravatar['avatar']['avatar'];
+                let avatarDb = useravatar['avatar'];                
 
                 glob(`**uploads/avatars/${avatarDb}*`, function(err, files) {
                   if (err) throw err;
@@ -285,10 +285,7 @@ export class UsersController {
                       fs.unlink(file);
                   }
                 });
-                avatar["avatar"] = filename.split(".")[0];
-                avatar["extension"] = ext;
-                file['avatar'] = avatar;            
-
+                file['avatar'] = filename.split(".")[0];      
                 const user = await this.usersService.update(param.id, file);
                 return {
                   code: '4000',
@@ -318,7 +315,7 @@ export class UsersController {
     @ApiOkResponse({})
     public async deleteUser(@Param() param, @Res() res) {
         const user = await this.usersService.findById(param.id);
-        let avatar = user['avatar']['avatar'];
+        let avatar = user['avatar'];
         glob(`**uploads/avatars/${avatar}*`, function(err, files) {
             if (err) throw err;
             for (const file of files) {

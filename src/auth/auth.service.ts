@@ -21,10 +21,10 @@ export class AuthService {
     }
 
     async login(req: Request, loginUserDto: LoginUserDto) {
-      const { username, password } = loginUserDto;
+      const { username } = loginUserDto;
       const user = await this.usersService.findOneByUsername({ username });
       if (!user) {
-        throw new HttpException('Username incorrect', HttpStatus.OK);
+        throw new HttpException('Identifiant et mot de passe ne se correspondent pas', HttpStatus.OK);
       }
       await this.checkPassword(loginUserDto.password, user);
       await this.passwordsAreMatch(user);

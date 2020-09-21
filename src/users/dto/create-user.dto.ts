@@ -13,5 +13,4 @@ export class CreateUserDto {
     readonly tel: string;
     readonly roles: [string];
     readonly avatar: string;
-    readonly extension: string;
 }

@@ -12,8 +12,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     response
       .status(status)
       .json({
-        statusCode: status,
-        message: "Veuiller vous connecter"
+        code: "4003",
+        message: "Veuillez vous connecter(session expire)",
+        value: []
       });
   }
 }

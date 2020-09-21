@@ -27,7 +27,7 @@ export class UsersService {
         .then(res => res.hits.hits.map(hit => {
             return hit['_source'];
         }))
-        .catch(err => { throw new HttpException(err, 500); });
+        // .catch(err => { throw new HttpException(err, 500); });
     
     }
 
