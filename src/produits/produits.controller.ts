@@ -13,10 +13,10 @@ import { Model } from 'mongoose';
 import { diskStorage } from 'multer';
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { editFileName, resizeImagesProduits } from 'src/ImageConverter/file.util';
-var path = require('path');
-var sizeOf = require("image-size");
+let path = require('path');
+let sizeOf = require("image-size");
 const fs = require('fs-extra');
-var glob = require("glob");
+let glob = require("glob");
 
 @Controller("produits")
 export class ProduitsController {

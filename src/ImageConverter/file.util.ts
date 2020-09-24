@@ -5,11 +5,6 @@ import { promisify } from 'util';
 const readFileAsyc = promisify(readFile);
 
 let sizes = [
-  // {
-  // path: "original",
-  // width: null,
-  // height: null,
-  // },
 {
   path: "hd",
   width: 720,
@@ -35,7 +30,6 @@ export const imageFileFilter = (req, file, callback) => {
 };
 
 export const editFileName = (req, file, callback) => {
-  const name = file.originalname.split('.')[0];
   const fileExtName = extname(file.originalname);
   const randomName = Array(10)
     .fill(null)
