@@ -33,6 +33,13 @@ export class ProduitsService {
         return await createdTodo.save();  
     }
 
+    async createMultipleProduit(produitsInterface: any) {
+        // const createdTodo = new this.produitsModel(produitsInterface);
+        // return await createdTodo.insertMany();  
+        return await this.produitsModel.insertMany(produitsInterface);
+        
+    }
+
     async updateProduit(ID: number, newValue: ProduitsInterface): Promise<ProduitsInterface> {
         const produits = await this.produitsModel.findById(ID).exec();
 
@@ -80,7 +87,7 @@ export class ProduitsService {
     }
 
     async updateDeleteImage(ID: number, pic_name: any){
-        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {images:{"$in": pic_name }}}}, {safe: true, multi: true}, err =>{
+        return await this.produitsModel.findByIdAndUpdate(ID, {$pull: {images: {"$in": pic_name }}}, {safe: true, multi: true}, err =>{
             if(err){console.log(err);
             }
         }).exec();

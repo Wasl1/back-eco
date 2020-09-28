@@ -27,13 +27,25 @@ export class ProduitsController {
 @Get()
 public async getAllProduits() {
   const produits = await this.produitsService.findAllProduits();
-  return { produits, total: produits.length };
+  return { 
+    code: 4000,
+    message: "liste des produits",
+    value: [
+      produits
+    ]
+  };
 }
 
 @Get('getLastProduits')
 public async getLastProduits() {
   const produits = await this.produitsService.getLastProduits();
-  return { produits, total: produits.length};
+  return { 
+    code: 4000,
+    message: "liste des produits",
+    value: [
+      produits
+    ]
+  };
 }
 
 @Get('getProduitsCustomised/:page')
@@ -66,7 +78,13 @@ public async getUserWhoFavoriteProduit(@Param() param){
 @Get('/:id')
 public async getProduit(@Param() param) {
   const produits = await this.produitsService.findByIdProduit(param.id);
-  return produits;
+  return { 
+    code: 4000,
+    message: "produit trouvé avec succes",
+    value: [
+      produits
+    ]
+  };
 }
 
 @Get('/getImage/:imgpath')
@@ -157,7 +175,51 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     data["provenance"] = addProduitsDto.provenance;
     data["historique"] = historique;
     
-    return this.produitsService.createProduit(data);
+    const result = this.produitsService.createProduit(data);
+    return {
+      code: 4000,
+      message: "produit ajouté avec succes",
+      value: [result]
+    }
+  }
+
+  @Post("/duplicate")
+  public async duplicateProduit(@Body() body){
+    let id_produits = [];
+    id_produits = body.id_produits;
+    let j = id_produits.length;
+    let produitArray = [];
+    for(let i = 0; i < j; i++) {
+      const produit = await this.produitsService.findByIdProduit(id_produits[i]);
+      let data = {};
+      let creer = {};
+      let date = new Date().toISOString().slice(0, 10);
+      let historique = [];
+
+      creer["acteur"] = body.acteur;
+      creer["date"] = date;
+      historique.push({"creer": creer});
+  
+      data["titre"] = produit.titre+'_copy';
+      data["description"] = produit.description;
+      data["marque"] = produit.marque;
+      data["categorie"] = produit.categorie;
+      data["quantite"] = produit.quantite;
+      data["detail_fabrication"] = produit.detail_fabrication;
+      data["detail_physique"] = produit.detail_physique;
+      data["prix"] = produit.prix;
+      data["garantie"] = produit.garantie;
+      data["provenance"] = produit.provenance;
+      data["historique"] = historique;
+
+      produitArray.push(data);    
+    }
+    const result = this.produitsService.createMultipleProduit(produitArray);
+    return {
+      code: 4000,
+      message: "produits copiés avec succes",
+      value: [result]
+    }
   }
 
   @Put('/:id')
@@ -222,7 +284,11 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         const produits = await this.produitsService.updateProduit(param.id, body).then(()=>{
             return this.produitsService.updateModifier(param.id, modificationArray);
         });
-        return produits;
+        return {
+          code: 4000,
+          message: "produit modifié avec succes",
+          value: [produits]
+        }
     }
 
     @Put('/update/lancement/:id')
@@ -239,7 +305,11 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       lancer["date"] = date;
       
       const produits = await this.produitsService.updateLancer(param.id, lancer);
-      return produits;
+      return {
+        code: 4000,
+        message: "produit lancé avec succes",
+        value: [produits]
+      }
     }
 
     @Put('/update/multipleLancement')
@@ -258,7 +328,11 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       lancer["date"] = date;
       
       const produits = await this.produitsService.updateMultipleLancer(id_produits, lancer);
-      return produits;
+      return {
+        code: 4000,
+        message: "produits lancés avec succes",
+        value: [produits]
+      }
     }
 
     @Put('/update/archive/:id')
@@ -275,7 +349,11 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       archive["date"] = date;
       
       const produits = await this.produitsService.updateArchiver(param.id, archive);
-      return produits;
+      return {
+        code: 4000,
+        message: "produit archivé avec succes",
+        value: [produits]
+      }
     }
 
     @Put('/update/multipleArchive')
@@ -294,7 +372,11 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       archive["date"] = date;
       
       const produits = await this.produitsService.updateMultipleArchiver(id_produits, archive);
-      return produits;
+      return {
+        code: 4000,
+        message: "produits archivés avec succes",
+        value: [produits]
+      }
     }
 
     @Put('/update/imagesAdd/:id')
@@ -393,8 +475,12 @@ public async getImage(@Param('imgpath') images, @Res() res) {
             }
         });
       }
-      const produits = await this.produitsService.updateDeleteImage(param.id, images);
-      return produits;      
+      const produits = await this.produitsService.updateDeleteImage(param.id, images);  
+      return {
+        code: 4000,
+        message: "images supprimés avec succes",
+        value: [produits]
+      }
     }
 
     @Put('/update/favorisAdd/:id')
@@ -408,7 +494,11 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       let values = Object.values(body);
       Array.prototype.push.apply(array, values);
       const produits = await this.produitsService.updateFavorisAdd(param.id, array);
-      return produits;
+      return {
+        code: 4000,
+        message: "favoris ajouté avec succes",
+        value: [produits]
+      }
     }
 
     @Put('/update/favorisRemove/:id')
@@ -423,7 +513,11 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       Array.prototype.push.apply(array, values);
       
       const produits = await this.produitsService.updateFavorisRemove(param.id, array[0]);
-      return produits;
+      return {
+        code: 4000,
+        message: "favoris supprimé avec succes",
+        value: [produits]
+      }
     }
 
     @Put('/update/voteAdd/:id')
@@ -437,7 +531,11 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       let values = Object.values(body);
       Array.prototype.push.apply(array, values);
       const produits = await this.produitsService.updateVoteAdd(param.id, array);
-      return produits;
+      return {
+        code: 4000,
+        message: "vote ajouté avec succes",
+        value: [produits]
+      }
     }
 
     @Put('/update/voteRemove/:id')
@@ -451,7 +549,11 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       let values = Object.values(body);
       Array.prototype.push.apply(array, values);
       const produits = await this.produitsService.updateVoteRemove(param.id, array[0]);
-      return produits;
+      return {
+        code: 4000,
+        message: "vote supprimé avec succes",
+        value: [produits]
+      }
     }
 
     @Put('/update/incrementView/:id')
@@ -462,7 +564,11 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     @ApiOkResponse({})
     public async incrementView(@Param() param){
       const produits = await this.produitsService.incrementView(param.id);
-      return produits;
+      return {
+        code: 4000,
+        message: "vu incrementé avec succes",
+        value: [produits]
+      }
     }
 
     @Put('/update/updateMultipleEtat')
@@ -475,7 +581,12 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       let id_produits = [];
       id_produits = body.id_produits;
       let etat = body.etat;
-      return this.produitsService.updateMultipleEtat(id_produits, etat);
+      const produits = this.produitsService.updateMultipleEtat(id_produits, etat);
+      return {
+        code: 4000,
+        message: "etat modifiés avec succes",
+        value: [produits]
+      }
     }
 
     @Put('/update/decrementQuantite/:id')
@@ -493,8 +604,17 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         qteProduit = -Math.abs(qteProduit);
       
         const produits = await this.produitsService.decrementQuantite(param.id, qteProduit);
-        return produits;
-      } else return "Stock epuisé";
+        return {
+          code: 4000,
+          message: "quantité decrementé avec succes",
+          value: [produits]
+        }
+      } else 
+          return {
+            code: 4000,
+            message: "Stock epuisé",
+            value: []
+          }
     }
 
     @Delete('/:id')
@@ -510,7 +630,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
        
         for (let i = 0; i < j; i++){
           let imagesDb = images[i];
-          console.log(imagesDb);
           
           glob(`**uploads/produits/${imagesDb}*`, function(err, files) {
               if (err) throw err;
@@ -519,7 +638,11 @@ public async getImage(@Param('imgpath') images, @Res() res) {
               }
           });
         }
-        res.send({message: "Produit suprrimé"});
+        res.send({
+          code: 4000,
+          message: "produit supprimé avec succes",
+          value: []
+        });
         return this.produitsService.deleteProduit(param.id);
     }
 
@@ -548,7 +671,11 @@ public async getImage(@Param('imgpath') images, @Res() res) {
           });
         }        
       }
-      res.send({message: "Produits suprrimés"});
+      res.send({
+        code: 4000,
+        message: "produits supprimés avec succes",
+        value: []
+      });
       return this.produitsService.deleteMultipleProduits(id_produits);
     }
 }

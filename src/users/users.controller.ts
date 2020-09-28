@@ -27,7 +27,12 @@ export class UsersController {
     @ApiOkResponse({})
     public async getAllUsers() {
         const users = await this.usersService.findAll();
-        return { users, total: users.length};
+        return {
+            code: 4000,
+            message: "liste de tous les users",
+            value: [users]
+        };
+        
     }
 
     @Get('find')
@@ -39,7 +44,11 @@ export class UsersController {
     public async findOneUser(@Body() body) {
         const queryCondition = body;
         const users = await this.usersService.findOne(queryCondition);
-        return users;
+        return {
+            code: 4000,
+            message: "users trouvés",
+            value: [users]
+        };
     }
 
     @Get('/:id')
@@ -50,7 +59,11 @@ export class UsersController {
     @ApiOkResponse({})
     public async getUser(@Param() param){
         const user = await this.usersService.findById(param.id);
-        return user;
+        return {
+            code: 4000,
+            message: "luser trouvé",
+            value: [user]
+        };
     }
 
     @Get('/recherche/searchUser')
