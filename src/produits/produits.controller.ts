@@ -169,17 +169,27 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     data["quantite"] = addProduitsDto.quantite;
     data["detail_fabrication"] = detail_fabrication;
     data["detail_physique"] = detail_physique;
-    data["etat"] = addProduitsDto.etat;
     data["prix"] = prix;
     data["garantie"] = addProduitsDto.garantie;
     data["provenance"] = addProduitsDto.provenance;
     data["historique"] = historique;
     
-    const result = this.produitsService.createProduit(data);
-    return {
-      code: 4000,
-      message: "produit ajouté avec succes",
-      value: [result]
+    if ( addProduitsDto.titre == undefined || addProduitsDto.description == undefined || addProduitsDto.categorie == undefined
+      || addProduitsDto.quantite == undefined || addProduitsDto.garantie == undefined || addProduitsDto.acteur == undefined
+      || addProduitsDto.provenance == undefined || addProduitsDto.numero_model == undefined || addProduitsDto.date_sortie == undefined
+      || addProduitsDto.prix_normal == undefined || addProduitsDto.prix_promotion == undefined){
+      return {
+        code: 4002,
+        message: "données manquantes",
+        value: []
+      }
+    } else {
+      const result = await this.produitsService.createProduit(data);
+      return {
+        code: 4000,
+        message: "produit ajouté avec succes",
+        value: [result]
+      }
     }
   }
 
@@ -214,12 +224,21 @@ public async getImage(@Param('imgpath') images, @Res() res) {
 
       produitArray.push(data);    
     }
-    const result = this.produitsService.createMultipleProduit(produitArray);
-    return {
-      code: 4000,
-      message: "produits copiés avec succes",
-      value: [result]
+    if(body.acteur == undefined){
+      return {
+        code: 4002,
+        message: "données manquantes",
+        value: []
+      }
+    } else{
+      const result = await this.produitsService.createMultipleProduit(produitArray);    
+      return {
+        code: 4000,
+        message: "produits copiés avec succes",
+        value: [result]
+      }
     }
+    
   }
 
   @Put('/:id')
@@ -581,7 +600,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       let id_produits = [];
       id_produits = body.id_produits;
       let etat = body.etat;
-      const produits = this.produitsService.updateMultipleEtat(id_produits, etat);
+      const produits = await this.produitsService.updateMultipleEtat(id_produits, etat);
       return {
         code: 4000,
         message: "etat modifiés avec succes",

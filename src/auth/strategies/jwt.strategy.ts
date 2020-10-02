@@ -18,7 +18,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     async validate(payload: JwtPayload){
         const user = await this.authService.validateUser(payload);
         if(!user){
-            throw new HttpException('Utilisateur introuvable', HttpStatus.OK);
+            throw new HttpException({
+                code: 4003,
+                message: "VUtilisateur introuvable)",
+                value: []
+              }, HttpStatus.OK);
         }
         return user;
     }

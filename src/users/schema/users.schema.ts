@@ -15,7 +15,8 @@ export const UsersSchema = new mongoose.Schema({
         required: true
     },
     password: {
-        type: String
+        type: String,
+        required: true
     },
     refreshToken: {
         type: String, default: null 

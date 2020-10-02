@@ -20,7 +20,8 @@ export class UsersController {
     constructor(private usersService: UsersService) {}
 
     @Get()
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
@@ -37,6 +38,7 @@ export class UsersController {
 
     @Get('find')
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
@@ -53,21 +55,30 @@ export class UsersController {
 
     @Get('/:id')
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     public async getUser(@Param() param){
         const user = await this.usersService.findById(param.id);
+        if (user == null){
+            return {
+                code: 4010,
+                message: "User n'existe pas",
+                value: []
+            };
+        }
         return {
             code: 4000,
-            message: "luser trouvé",
+            message: "User trouvé",
             value: [user]
         };
     }
 
     @Get('/recherche/searchUser')
     // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
@@ -124,6 +135,7 @@ export class UsersController {
 
     @Post() 
     // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
@@ -135,14 +147,23 @@ export class UsersController {
         if(usernameFinded == null && emailFinded == null){
             return await this.usersService.create(createUserDto);
         } else if (usernameFinded != null){
-            throw new HttpException('Username existe déjà', HttpStatus.OK);
+            throw new HttpException({
+                code: 4003,
+                message: "Username existe déjà",
+                value: []
+              }, HttpStatus.OK);
         } else {
-            throw new HttpException('Email existe déjà', HttpStatus.OK);
+            throw new HttpException({
+                code: 4003,
+                message: "Email existe déjà",
+                value: []
+              }, HttpStatus.OK);
         }
     }
 
     @Post('sendMail')
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
@@ -253,7 +274,7 @@ export class UsersController {
 
     @Put('/:id')
     // @UseGuards(AuthGuard('jwt'), RolesGuard)
-    // @UseFilters(new HttpExceptionFilter())
+    @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
@@ -322,6 +343,7 @@ export class UsersController {
 
     @Delete('/:id')
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
@@ -336,7 +358,11 @@ export class UsersController {
             }
         });
         
-        res.send({message: "User suprrimé"});
+        res.send({
+            code: 4000,
+            message: "User suprrimé",
+            value: []
+        });
         return this.usersService.delete(param.id);
     }
 }

@@ -17,10 +17,18 @@ export class AuthController {
         return await this.authService.login(req, loginUserDto);
     }
 
-    @Post('refresh-access-token')
+    @Post('refreshAccessToken')
     @HttpCode(HttpStatus.CREATED)
     @ApiCreatedResponse({})
     async refreshAccessToken(@Body() refreshAccessTokenDto: RefreshAccessTokenDto) {
         return await this.authService.refreshAccessToken(refreshAccessTokenDto);
     }
+
+    @Post('deleteRefreshToken')
+    @HttpCode(HttpStatus.CREATED)
+    @ApiCreatedResponse({})
+    async logout(@Body() refreshToken: string, userId: string) {
+        return await this.authService.logout(refreshToken,userId);
+    }
+
 }

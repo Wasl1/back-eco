@@ -42,6 +42,7 @@
     "jimp": "^0.14.0",
     "lodash": "^4.17.15",
     "mkdirp": "^1.0.4",
+    "moment":"^2.29.0",
     "mongoosastic": "^4.6.0",
     "mongoose": "^5.9.10",
     "mongoose-elasticsearch-xp": "^5.8.0",
