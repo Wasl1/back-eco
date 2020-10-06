@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Put, Delete, Res, HttpStatus, ParseIntPipe, UseInterceptors, UploadedFiles, UseGuards, HttpCode } from "@nestjs/common";
+import { Controller, Post, Body, Get, Param, Put, Delete, Res, HttpStatus, ParseIntPipe, UseInterceptors, UploadedFiles, UseGuards, HttpCode, UseFilters } from "@nestjs/common";
 import { ProduitsService } from "./produits.service";
 import { ProduitsDto } from "./dto/produits.dto";
 import { HistoricSearchService } from "src/historic-search/historic-search.service";
@@ -13,6 +13,7 @@ import { Model } from 'mongoose';
 import { diskStorage } from 'multer';
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { editFileName, resizeImagesProduits } from 'src/ImageConverter/file.util';
+import { HttpExceptionFilter  } from 'src/exception/unauthorizedExceptionFilter';
 let path = require('path');
 let sizeOf = require("image-size");
 const fs = require('fs-extra');
@@ -136,11 +137,9 @@ public async getImage(@Param('imgpath') images, @Res() res) {
   }
 
   @Post()
-  //@UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseFilters(new HttpExceptionFilter())
   @Roles('user', 'admin')
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({})
   async create(@Body() addProduitsDto: ProduitsDto) {  
     let data = {};
     let detail_fabrication = {};
@@ -173,28 +172,32 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     data["garantie"] = addProduitsDto.garantie;
     data["provenance"] = addProduitsDto.provenance;
     data["historique"] = historique;
-    
-    if ( addProduitsDto.titre == undefined || addProduitsDto.description == undefined || addProduitsDto.categorie == undefined
-      || addProduitsDto.quantite == undefined || addProduitsDto.garantie == undefined || addProduitsDto.acteur == undefined
-      || addProduitsDto.provenance == undefined || addProduitsDto.numero_model == undefined || addProduitsDto.date_sortie == undefined
-      || addProduitsDto.prix_normal == undefined || addProduitsDto.prix_promotion == undefined){
-      return {
-        code: 4002,
-        message: "données manquantes",
-        value: []
-      }
-    } else {
-      const result = await this.produitsService.createProduit(data);
-      return {
-        code: 4000,
-        message: "produit ajouté avec succes",
-        value: [result]
-      }
-    }
+  
+    return addProduitsDto.titre == undefined ? { code: 4002, message: "Veillez renseigner le titre", value: []}
+           : addProduitsDto.description == undefined ? { code: 4002, message: "Veillez renseigner la description", value: []}
+           : addProduitsDto.categorie == undefined ? { code: 4002, message: "Veillez renseigner la categorie", value: []}
+           : addProduitsDto.quantite == undefined ? { code: 4002, message: "Veillez renseigner la quantité", value: []}
+           : addProduitsDto.garantie == undefined ? { code: 4002, message: "Veillez renseigner la descripgarantietion", value: []}
+           : addProduitsDto.acteur == undefined ? { code: 4002, message: "Veillez renseigner l'acteur", value: []}
+           : addProduitsDto.provenance == undefined ? { code: 4002, message: "Veillez renseigner la provenance", value: []}
+           : addProduitsDto.numero_model == undefined ? { code: 4002, message: "Veillez renseigner le numero_model", value: []}
+           : addProduitsDto.date_sortie == undefined ? { code: 4002, message: "Veillez renseigner la date_sortie", value: []}
+           : addProduitsDto.prix_normal == undefined ? { code: 4002, message: "Veillez renseigner le prix_normal", value: []}
+           : addProduitsDto.prix_promotion == undefined ? { code: 4002, message: "Veillez renseigner le prix_promotion", value: []}
+           : {code: 4000, message: "produit ajouté avec success", value: [await this.produitsService.createProduit(data)]}
   }
 
   @Post("/duplicate")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseFilters(new HttpExceptionFilter())
+  @Roles('user', 'admin')
   public async duplicateProduit(@Body() body){
+    if( !body.id_produits ){
+     return { 
+       code: 4002, message: "Veillez renseigner le produit à copier", 
+       value: []
+      }
+    }
     let id_produits = [];
     id_produits = body.id_produits;
     let j = id_produits.length;
@@ -224,29 +227,15 @@ public async getImage(@Param('imgpath') images, @Res() res) {
 
       produitArray.push(data);    
     }
-    if(body.acteur == undefined){
-      return {
-        code: 4002,
-        message: "données manquantes",
-        value: []
-      }
-    } else{
-      const result = await this.produitsService.createMultipleProduit(produitArray);    
-      return {
-        code: 4000,
-        message: "produits copiés avec succes",
-        value: [result]
-      }
-    }
+
+    return body.acteur == undefined ? { code: 4002, message: "Veillez renseigner l'acteur'", value: []}
+           : {code: 4000, message: "produits copiés avec succes", value: await this.produitsService.createMultipleProduit(produitArray)}
     
   }
 
   @Put('/:id')
-  //@UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('user', 'admin')
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({})
     public async updateProduits(@Param() param, @Body() body, @Body() vraiBody){ 
       const produit = await this.produitsService.findByIdProduit(param.id);
     
@@ -311,33 +300,29 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/lancement/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async updateLancement(@Param() param, @Body() body){
       let lancer = {};
       let date = new Date().toISOString().slice(0, 10);
 
       lancer["acteur"] = body.acteur;
       lancer["date"] = date;
-      
-      const produits = await this.produitsService.updateLancer(param.id, lancer);
-      return {
-        code: 4000,
-        message: "produit lancé avec succes",
-        value: [produits]
-      }
+
+      return body.acteur == undefined ? { code: 4002, message: "Veillez renseigner l'acteur'", value: []}
+           : {code: 4000, message: "produit lancé avec succes", value: [await this.produitsService.updateLancer(param.id, lancer)]};
     }
 
     @Put('/update/multipleLancement')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async updateMultipleLancement(@Body() body){
+      if( !body.id_produits ){
+        return { 
+          code: 4002, message: "Veillez renseigner les produit à lancer", 
+          value: []
+         }
+      }
       let id_produits = [];
       id_produits = body.id_produits;
       let lancer = {};
@@ -346,42 +331,34 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       lancer["acteur"] = body.acteur;
       lancer["date"] = date;
       
-      const produits = await this.produitsService.updateMultipleLancer(id_produits, lancer);
-      return {
-        code: 4000,
-        message: "produits lancés avec succes",
-        value: [produits]
-      }
+      return body.acteur == undefined ? { code: 4002, message: "Veillez renseigner l'acteur'", value: []}
+           : {code: 4000, message: "produits lancés avec succes", value: [await this.produitsService.updateMultipleLancer(id_produits, lancer)]}
     }
 
     @Put('/update/archive/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async updateArchive(@Param() param, @Body() body){
       let archive = {};
       let date = new Date().toISOString().slice(0, 10);
 
       archive["acteur"] = body.acteur;
       archive["date"] = date;
-      
-      const produits = await this.produitsService.updateArchiver(param.id, archive);
-      return {
-        code: 4000,
-        message: "produit archivé avec succes",
-        value: [produits]
-      }
+  
+      return body.acteur == undefined ? { code: 4002, message: "Veillez renseigner l'acteur'", value: []}
+      : {code: 4000, message: "produit archivé avec succes", value: [await this.produitsService.updateArchiver(param.id, archive)]};
     }
 
     @Put('/update/multipleArchive')
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async updateMultipleArchive(@Body() body){
+      if( !body.id_produits ) {
+        return { 
+          code: 4002, message: "Veillez renseigner les produit à archiver", 
+          value: []
+         }
+      }
       let id_produits = [];
       id_produits = body.id_produits;
       let archive = {};
@@ -390,12 +367,8 @@ public async getImage(@Param('imgpath') images, @Res() res) {
       archive["acteur"] = body.acteur;
       archive["date"] = date;
       
-      const produits = await this.produitsService.updateMultipleArchiver(id_produits, archive);
-      return {
-        code: 4000,
-        message: "produits archivés avec succes",
-        value: [produits]
-      }
+      return body.acteur == undefined ? { code: 4002, message: "Veillez renseigner l'acteur'", value: []}
+           : {code: 4000, message: "produits archivés avec succes", value: [await this.produitsService.updateMultipleArchiver(id_produits, archive)]}
     }
 
     @Put('/update/imagesAdd/:id')

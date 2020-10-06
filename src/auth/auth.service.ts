@@ -14,12 +14,8 @@ import * as Cryptr from 'cryptr';
 import { RefreshAccessTokenDto } from 'src/users/dto/refresh-access-token.dto';
 import * as bcrypt from 'bcrypt';
 import { Types } from 'mongoose';
-import * as moment from 'moment';
 @Injectable()
 export class AuthService {
-    private expiresInDefault: string | number;
-    // @todo: should be put in redis cache
-    private readonly usersExpired: number[] = [];
 
     constructor(@InjectModel('RefreshToken') private readonly refreshTokenModel: Model<RefreshToken>,
     @InjectModel('User') private readonly userModel: Model<Users>,
@@ -39,14 +35,12 @@ export class AuthService {
       await this.checkPassword(loginUserDto.password, user);
       await this.passwordsAreMatch(user);
       return {
-          username: user.username,
-          email: user.email,
           accessToken: await this.createAccessToken(user._id),
           refreshToken: await this.createRefreshToken(req, user._id),
       };
     }
 
-    async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
+    async refreshAccessToken(req: Request, refreshAccessTokenDto: RefreshAccessTokenDto) {
       const userId = await this.findRefreshToken(refreshAccessTokenDto.refreshToken);
       const user = await this.userModel.findById(userId);
       if (!user) {
@@ -58,6 +52,7 @@ export class AuthService {
       }
       return {
           accessToken: await this.createAccessToken(user._id),
+          refreshToken: await this.createRefreshToken(req, user._id),
       };
     }
 
@@ -119,14 +114,12 @@ export class AuthService {
       return user;
     }
 
-    async deleteRefreshTokenForUser(userId: string) {
-      await this.delete({ userId: Types.ObjectId(userId) });
-      await this.revokeTokenForUser(userId);
-    }
+    // async deleteRefreshTokenForUser(userId: string) {
+    //   await this.delete({ userId: Types.ObjectId(userId) });
+    // }
     
     async deleteRefreshToken(userId: string, value: string) {
       await this.delete({ value });
-      await this.revokeTokenForUser(userId);
     }
 
     async logout(userId: string, refreshToken: string): Promise<any> {
@@ -137,11 +130,6 @@ export class AuthService {
       return this.refreshTokenModel.deleteMany(filter).exec();
     }
 
-    private async revokeTokenForUser(userId: string): Promise<any> {
-      this.usersExpired[userId] = moment()
-        .add(this.expiresInDefault, 's')
-        .unix();
-    }
 
       // JWT Extractor
     private jwtExtractor(request) {

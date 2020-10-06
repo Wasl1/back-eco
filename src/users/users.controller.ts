@@ -23,15 +23,12 @@ export class UsersController {
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async getAllUsers() {
         const users = await this.usersService.findAll();
         return {
             code: 4000,
             message: "liste de tous les users",
-            value: [users]
+            value: users
         };
         
     }
@@ -40,9 +37,6 @@ export class UsersController {
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async findOneUser(@Body() body) {
         const queryCondition = body;
         const users = await this.usersService.findOne(queryCondition);
@@ -57,9 +51,6 @@ export class UsersController {
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async getUser(@Param() param){
         const user = await this.usersService.findById(param.id);
         if (user == null){
@@ -80,9 +71,6 @@ export class UsersController {
     // @UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async esSearchUser(@Body('search_user') search_user: string){   
         const results = await this.usersService.userSearch(search_user);
         return results;
@@ -92,9 +80,6 @@ export class UsersController {
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async testAuthRoute(){
         return {
             message: 'for user and admin'
@@ -105,9 +90,6 @@ export class UsersController {
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async testAuthRoute1(){
         return {
             message: 'admin only'
@@ -138,8 +120,6 @@ export class UsersController {
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async create(@Body() createUserDto: CreateUserDto, @Body() body) {
         const { username, email } = createUserDto;
         const usernameFinded = await this.usersService.findOneByUsername({username});
@@ -165,9 +145,6 @@ export class UsersController {
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async sendMail(@Body() body){
         let info = await transporter.sendMail({
             from: '"E-commerce GWERT" <foo@example.com>',
@@ -184,9 +161,6 @@ export class UsersController {
     @Post('sendMailMultiple')
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async sendMailMultiple(@Body() body){
         let info = await transporter.sendMail({
             from: '"E-commerce GWERT" <foo@example.com>',
@@ -203,9 +177,6 @@ export class UsersController {
     @Post('/sendMail/PdfGenerated')
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async generatePDF(@Body() body, @Res() res) {
     
         const pdfDoc = printer.createPdfKitDocument(docDefinitionFacture);
@@ -239,9 +210,6 @@ export class UsersController {
     @Post('/sendMailMultiple/PdfGenerated')
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async sendMailPdfMultiple(@Body() body, @Res() res) {
     
         const pdfDoc = printer.createPdfKitDocument(docDefinitionFacture);
@@ -276,9 +244,6 @@ export class UsersController {
     // @UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     @UseInterceptors(
       FileInterceptor('avatar', {
         storage: diskStorage({
@@ -345,9 +310,6 @@ export class UsersController {
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async deleteUser(@Param() param, @Res() res) {
         const user = await this.usersService.findById(param.id);
         let avatar = user['avatar'];
