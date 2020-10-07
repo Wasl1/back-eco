@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Post, UseGuards, ValidationPipe, HttpCode, HttpStatus, Req, Res } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
-import { ApiCreatedResponse, ApiOkResponse, ApiOperation} from '@nestjs/swagger';
 import { RefreshAccessTokenDto } from 'src/users/dto/refresh-access-token.dto';
 import { Request } from 'express';
 

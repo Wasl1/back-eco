@@ -13,7 +13,6 @@ import { getClientIp } from 'request-ip';
 import * as Cryptr from 'cryptr';
 import { RefreshAccessTokenDto } from 'src/users/dto/refresh-access-token.dto';
 import * as bcrypt from 'bcrypt';
-import { Types } from 'mongoose';
 @Injectable()
 export class AuthService {
 
@@ -113,10 +112,6 @@ export class AuthService {
       }
       return user;
     }
-
-    // async deleteRefreshTokenForUser(userId: string) {
-    //   await this.delete({ userId: Types.ObjectId(userId) });
-    // }
     
     async deleteRefreshToken(userId: string, value: string) {
       await this.delete({ value });
@@ -129,7 +124,6 @@ export class AuthService {
     async delete(filter = {}): Promise<any> {
       return this.refreshTokenModel.deleteMany(filter).exec();
     }
-
 
       // JWT Extractor
     private jwtExtractor(request) {

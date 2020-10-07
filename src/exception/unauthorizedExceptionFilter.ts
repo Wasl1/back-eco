@@ -18,16 +18,3 @@ export class HttpExceptionFilter implements ExceptionFilter {
       });
   }
 }
-
-// @Get('/routes/user')
-//     @UseGuards(AuthGuard('jwt'), RolesGuard)
-//     @UseFilters(new HttpExceptionFilter())
-//     @Roles('user', 'admin')
-//     @ApiBearerAuth()
-//     @HttpCode(HttpStatus.OK)
-//     @ApiOkResponse({})
-//     public async testAuthRoute(){
-//         return {
-//             message: 'for user and admin'
-//         }
-//     }

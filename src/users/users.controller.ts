@@ -1,11 +1,10 @@
-import { Controller, Post, Body, Get, UseGuards, Put, Param, Delete, HttpException, Res, HttpCode, HttpStatus, Request, UseFilters, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Put, Param, Delete, HttpException, Res, HttpStatus, UseFilters, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
 import { transporter, nodemailer, email } from "src/templates/template.mail";
 import { printer, docDefinitionFacture } from "src/templates/template.pdf";
 import { Roles } from './../auth/decorators/roles.decorator';
-import { ApiOkResponse, ApiBearerAuth} from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { HttpExceptionFilter  } from 'src/exception/unauthorizedExceptionFilter';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -123,7 +122,6 @@ export class UsersController {
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
-    @ApiBearerAuth()
     public async create(@Body() createUserDto: CreateUserDto, @Body() body) {
         const { username, email } = createUserDto;
         const usernameFinded = await this.usersService.findOneByUsername({username});
