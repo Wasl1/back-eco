@@ -13,8 +13,10 @@ import { getClientIp } from 'request-ip';
 import * as Cryptr from 'cryptr';
 import { RefreshAccessTokenDto } from 'src/users/dto/refresh-access-token.dto';
 import * as bcrypt from 'bcrypt';
+import { Types } from 'mongoose';
 @Injectable()
 export class AuthService {
+
     constructor(@InjectModel('RefreshToken') private readonly refreshTokenModel: Model<RefreshToken>,
     @InjectModel('User') private readonly userModel: Model<Users>,
     private usersService: UsersService){
@@ -24,32 +26,44 @@ export class AuthService {
       const { username } = loginUserDto;
       const user = await this.usersService.findOneByUsername({ username });
       if (!user) {
-        throw new HttpException('Identifiant et mot de passe ne se correspondent pas', HttpStatus.OK);
+        throw new HttpException({
+          code: 4001,
+          message: "Identifiant et mot de passe ne se correspondent pas",
+          value: []
+        }, HttpStatus.OK);
       }
       await this.checkPassword(loginUserDto.password, user);
       await this.passwordsAreMatch(user);
       return {
-          username: user.username,
-          email: user.email,
           accessToken: await this.createAccessToken(user._id),
           refreshToken: await this.createRefreshToken(req, user._id),
       };
     }
-    async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
+
+    async refreshAccessToken(req: Request, refreshAccessTokenDto: RefreshAccessTokenDto) {
       const userId = await this.findRefreshToken(refreshAccessTokenDto.refreshToken);
       const user = await this.userModel.findById(userId);
       if (!user) {
-          throw new BadRequestException('Bad request');
+          throw new HttpException({
+            code: 4003,
+            message: "Veuillez vous connecter(session expire)",
+            value: []
+          }, HttpStatus.OK);
       }
       return {
           accessToken: await this.createAccessToken(user._id),
+          refreshToken: await this.createRefreshToken(req, user._id),
       };
     }
 
     private async checkPassword(attemptPass: string, user) {
         const match = await bcrypt.compare(attemptPass, user.password);
         if (!match) {
-          throw new HttpException('Mot de passe incorrect', HttpStatus.OK);
+          throw new HttpException({
+            code: 4001,
+            message: "Identifiant et mot de passe ne se correspondent pas",
+            value: []
+          }, HttpStatus.OK);
         }
         return match;
     }
@@ -79,7 +93,11 @@ export class AuthService {
     async findRefreshToken(token: string) {
       const refreshToken = await this.refreshTokenModel.findOne({refreshToken: token});
       if (!refreshToken) {
-        throw new UnauthorizedException('Utilisateur deconnecté');
+        throw new HttpException({
+          code: 4003,
+          message: "Veuillez vous connecter(session expire)",
+          value: []
+        }, HttpStatus.OK);
       }
       return refreshToken.userId;
     }
@@ -87,10 +105,31 @@ export class AuthService {
     async validateUser(jwtPayload: JwtPayload): Promise<any> {
       const user = await this.userModel.findOne({_id: jwtPayload.userId});
       if (!user) {
-        throw new HttpException('Utilisateur introuvable', HttpStatus.OK);
+        throw new HttpException({
+          code: 4003,
+          message: "Utilisateur introuvable",
+          value: []
+        }, HttpStatus.OK);
       }
       return user;
     }
+
+    // async deleteRefreshTokenForUser(userId: string) {
+    //   await this.delete({ userId: Types.ObjectId(userId) });
+    // }
+    
+    async deleteRefreshToken(userId: string, value: string) {
+      await this.delete({ value });
+    }
+
+    async logout(userId: string, refreshToken: string): Promise<any> {
+      await this.deleteRefreshToken(userId, refreshToken);
+    }
+
+    async delete(filter = {}): Promise<any> {
+      return this.refreshTokenModel.deleteMany(filter).exec();
+    }
+
 
       // JWT Extractor
     private jwtExtractor(request) {
@@ -105,7 +144,7 @@ export class AuthService {
         if (request.query.token) {
         token = request.body.token.replace(' ', '');
     }
-        const cryptr = new Cryptr('clésecrètedemacrypto');
+        const cryptr = new Cryptr(process.env.CLE_CRYPTR);
         if (token) {
         try {
             token = cryptr.decrypt(token);

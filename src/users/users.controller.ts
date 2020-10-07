@@ -20,27 +20,23 @@ export class UsersController {
     constructor(private usersService: UsersService) {}
 
     @Get()
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async getAllUsers() {
         const users = await this.usersService.findAll();
         return {
             code: 4000,
             message: "liste de tous les users",
-            value: [users]
+            value: users
         };
         
     }
 
     @Get('find')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async findOneUser(@Body() body) {
         const queryCondition = body;
         const users = await this.usersService.findOne(queryCondition);
@@ -52,38 +48,42 @@ export class UsersController {
     }
 
     @Get('/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async getUser(@Param() param){
         const user = await this.usersService.findById(param.id);
+        if (user == null){
+            return {
+                code: 4010,
+                message: "User n'existe pas",
+                value: []
+            };
+        }
         return {
             code: 4000,
-            message: "luser trouvé",
+            message: "User trouvé",
             value: [user]
         };
     }
 
     @Get('/recherche/searchUser')
-    // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async esSearchUser(@Body('search_user') search_user: string){   
         const results = await this.usersService.userSearch(search_user);
-        return results;
+        return { 
+            code: 4000,
+            message: "resultat trouvé",
+            value: results
+          };
     }
 
     @Get('/routes/user')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async testAuthRoute(){
         return {
             message: 'for user and admin'
@@ -94,9 +94,6 @@ export class UsersController {
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async testAuthRoute1(){
         return {
             message: 'admin only'
@@ -123,11 +120,10 @@ export class UsersController {
     // }
 
     @Post() 
-    // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async create(@Body() createUserDto: CreateUserDto, @Body() body) {
         const { username, email } = createUserDto;
         const usernameFinded = await this.usersService.findOneByUsername({username});
@@ -135,18 +131,24 @@ export class UsersController {
         if(usernameFinded == null && emailFinded == null){
             return await this.usersService.create(createUserDto);
         } else if (usernameFinded != null){
-            throw new HttpException('Username existe déjà', HttpStatus.OK);
+            throw new HttpException({
+                code: 4003,
+                message: "Username existe déjà",
+                value: []
+              }, HttpStatus.OK);
         } else {
-            throw new HttpException('Email existe déjà', HttpStatus.OK);
+            throw new HttpException({
+                code: 4003,
+                message: "Email existe déjà",
+                value: []
+              }, HttpStatus.OK);
         }
     }
 
     @Post('sendMail')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async sendMail(@Body() body){
         let info = await transporter.sendMail({
             from: '"E-commerce GWERT" <foo@example.com>',
@@ -161,11 +163,9 @@ export class UsersController {
     }
 
     @Post('sendMailMultiple')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async sendMailMultiple(@Body() body){
         let info = await transporter.sendMail({
             from: '"E-commerce GWERT" <foo@example.com>',
@@ -180,11 +180,9 @@ export class UsersController {
     }
 
     @Post('/sendMail/PdfGenerated')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async generatePDF(@Body() body, @Res() res) {
     
         const pdfDoc = printer.createPdfKitDocument(docDefinitionFacture);
@@ -216,11 +214,9 @@ export class UsersController {
     }
 
     @Post('/sendMailMultiple/PdfGenerated')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async sendMailPdfMultiple(@Body() body, @Res() res) {
     
         const pdfDoc = printer.createPdfKitDocument(docDefinitionFacture);
@@ -252,12 +248,9 @@ export class UsersController {
     }
 
     @Put('/:id')
-    // @UseGuards(AuthGuard('jwt'), RolesGuard)
-    // @UseFilters(new HttpExceptionFilter())
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     @UseInterceptors(
       FileInterceptor('avatar', {
         storage: diskStorage({
@@ -280,7 +273,7 @@ export class UsersController {
                     }
                 });    
                 return {
-                    code: '4005',
+                    code: '4004',
                     message: 'width inférieur à 180 and height inférieur à 240',
                     value:[{
                         imageBloquee: file.originalname 
@@ -321,11 +314,9 @@ export class UsersController {
     }      
 
     @Delete('/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     public async deleteUser(@Param() param, @Res() res) {
         const user = await this.usersService.findById(param.id);
         let avatar = user['avatar'];
@@ -336,7 +327,11 @@ export class UsersController {
             }
         });
         
-        res.send({message: "User suprrimé"});
+        res.send({
+            code: 4000,
+            message: "User suprrimé",
+            value: []
+        });
         return this.usersService.delete(param.id);
     }
 }

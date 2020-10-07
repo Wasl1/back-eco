@@ -1,4 +1,4 @@
-import { Controller,Post,Body,Get,Param,Delete,HttpStatus, Put, UseGuards, HttpCode } from '@nestjs/common';
+import { Controller,Post,Body,Get,Param,Delete,HttpStatus, Put, UseGuards, HttpCode, Res } from '@nestjs/common';
 import { categorieService } from './categorie.service';
 import { categorieDto } from './dto/categorie.dto'
 import { AuthGuard } from '@nestjs/passport';
@@ -13,25 +13,45 @@ export class categorieController {
 
     @Post()
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles('admin')
+    // @Roles('admin')
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
-    async addcategorie(@Body() CreatePostDTO: categorieDto) {
-        const categorie = await this.categorieService.insertcategorie(CreatePostDTO);
-        return categorie;
+    async addcategorie(@Body() CreatePostDTO: categorieDto) {        
+        if (CreatePostDTO.nom == undefined|| CreatePostDTO.description == undefined) {
+            return {
+                code: 4002,
+                message: "données manquantes",
+                value: []
+              }
+        } else {
+            const categorie = await this.categorieService.insertcategorie(CreatePostDTO);
+            return {
+                code: 4000,
+                message: "categorie ajoutée avec succes",
+                value: [categorie]
+              }
+        }
     }
 
     @Get()
     async getAllcategorie() {
         const categorie = await this.categorieService.getcategorie();
-        return categorie;
+        return {
+            code: 4000,
+            message: "liste des categories",
+            value: [categorie]
+        }
     }
 
     @Get(':id')
     async getcategorie(@Param('id') categorieId: string) {
          const categorie = await this.categorieService.getSinglecategorie(categorieId);
-         return categorie;
+         return {
+            code: 4000,
+            message: "categorie trouvé avec succes",
+            value: [categorie]
+          }
     }
 
     @Put(':id')
@@ -42,7 +62,11 @@ export class categorieController {
     @ApiOkResponse({})
     async updatecategorie(@Param('id') categorieId: string, @Body() CreatePostDTO: categorieDto) {
         const categorie = await this.categorieService.updatecategorie(categorieId,CreatePostDTO);
-        return categorie;
+        return {
+            code: 4000,
+            message: "categorie modifié avec succes",
+            value: [categorie]
+          }
     };
         
     @Delete(':id')
@@ -51,8 +75,13 @@ export class categorieController {
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
-    async removecategorie(@Param('id') categorieId: string) {
+    async removecategorie(@Param('id') categorieId: string, @Res() res) {
         const isDeleted = await this.categorieService.deletecategorie(categorieId);
+        res.send({
+            code: 4000,
+            message: "categorie suprrimé avec succes",
+            value: []
+          });
         return isDeleted;
     };
 }

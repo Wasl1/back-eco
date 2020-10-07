@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, ValidationPipe, HttpCode, HttpStatus, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, ValidationPipe, HttpCode, HttpStatus, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation} from '@nestjs/swagger';
@@ -10,17 +10,35 @@ export class AuthController {
     constructor(private authService: AuthService) {}
 
     @Post('login')
-    @HttpCode(HttpStatus.OK)
-    @ApiOperation({summary: 'Login User',})
-    @ApiOkResponse({})
     async login(@Req() req: Request, @Body() loginUserDto: LoginUserDto) {
-        return await this.authService.login(req, loginUserDto);
+        const login = await this.authService.login(req, loginUserDto);
+        return {
+            code: 4000,
+            message: "vous êtes maintenant connecté",
+            value: [ login ]
+        }
     }
 
-    @Post('refresh-access-token')
-    @HttpCode(HttpStatus.CREATED)
-    @ApiCreatedResponse({})
-    async refreshAccessToken(@Body() refreshAccessTokenDto: RefreshAccessTokenDto) {
-        return await this.authService.refreshAccessToken(refreshAccessTokenDto);
+    @Post('refreshAccessToken')
+    async refreshAccessToken(@Req() req: Request, @Body() refreshAccessTokenDto: RefreshAccessTokenDto) {
+        const refreshToken = await this.authService.refreshAccessToken(req, refreshAccessTokenDto);
+        await this.authService.delete(refreshAccessTokenDto);
+        return {
+            code: 4000,
+            message: "token actualisé avec success",
+            value: [ refreshToken ]
+        }
     }
+
+    @Post('deleteRefreshToken')
+    async logout(@Body() refreshToken: string, userId: string, @Res() res){
+        const deleteRefreshToken = await this.authService.logout(refreshToken,userId);
+        res.send({
+            code: 4000,
+            message: "refreshToken supprimé",
+            value: []
+        });
+        return deleteRefreshToken;
+    }
+
 }

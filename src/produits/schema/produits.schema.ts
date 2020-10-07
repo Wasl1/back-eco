@@ -12,8 +12,7 @@ export const ProduitsSchema = new mongoose.Schema({
         required: true
     },
     marque: {
-        type: String, 
-        required: true
+        type: String
     },
     categorie: {
         type: mongoose.Schema.Types.ObjectId, ref:'categorie',
@@ -29,8 +28,7 @@ export const ProduitsSchema = new mongoose.Schema({
         }
     ],
     images: {
-        type: [],
-        required: true
+        type: []
     },
     detail_fabrication: {
       type: Object,

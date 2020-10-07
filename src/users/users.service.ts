@@ -62,7 +62,6 @@ export class UsersService {
     async delete(ID: number): Promise<string> {
         try {
             await this.userModel.findByIdAndRemove(ID).exec();
-            return 'The user has been deleted';
         }
         catch (err){
             debug(err);
