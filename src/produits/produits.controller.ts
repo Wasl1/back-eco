@@ -145,7 +145,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  //@UseGuards(AuthGuard('jwt'), RolesGuard)
   @UseFilters(new HttpExceptionFilter())
   @Roles('user', 'admin')
   async create(@Body() addProduitsDto: ProduitsDto) {  
@@ -196,7 +196,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
   }
 
   @Post("/duplicate")
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  //@UseGuards(AuthGuard('jwt'), RolesGuard)
   @UseFilters(new HttpExceptionFilter())
   @Roles('user', 'admin')
   public async duplicateProduit(@Body() body){
@@ -242,7 +242,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
   }
 
   @Put('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  //@UseGuards(AuthGuard('jwt'), RolesGuard)
   @UseFilters(new HttpExceptionFilter())
   @Roles('user', 'admin')
     public async updateProduits(@Param() param, @Body() body, @Body() vraiBody){ 
@@ -309,7 +309,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/lancement/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async updateLancement(@Param() param, @Body() body){
@@ -324,7 +324,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/multipleLancement')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async updateMultipleLancement(@Body() body){
@@ -347,7 +347,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/archive/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async updateArchive(@Param() param, @Body() body){
@@ -362,7 +362,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/multipleArchive')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async updateMultipleArchive(@Body() body){
@@ -385,7 +385,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/imagesAdd/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     @UseInterceptors(
@@ -462,7 +462,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/imagesRemove/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async deleteImages(@Param() param, @Body() body){
@@ -485,7 +485,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/favorisAdd/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async updateFavorisPush(@Param() param, @Body() body){
@@ -507,7 +507,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/favorisRemove/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async updateFavorisPull(@Param() param, @Body() body){
@@ -530,7 +530,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/voteAdd/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async updateVotePush(@Param() param, @Body() body){
@@ -552,7 +552,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/voteRemove/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async updateVotePull(@Param() param, @Body() body){
@@ -574,7 +574,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/incrementView/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async incrementView(@Param() param){
@@ -587,7 +587,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/updateMultipleEtat')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async updateMultipleEtat(@Body() body){
@@ -603,7 +603,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/decrementQuantite/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async decrementQuantite(@Param() param, @Body() body){
@@ -629,7 +629,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Delete('/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async deleteProduits(@Param() param, @Res() res) {
@@ -656,7 +656,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Delete('/delete/deleteMultipleProduits')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async deleteManyProduits(@Body() body, @Res() res){

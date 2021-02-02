@@ -19,7 +19,7 @@ export class UsersController {
     constructor(private usersService: UsersService) {}
 
     @Get()
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
     public async getAllUsers() {
@@ -33,7 +33,7 @@ export class UsersController {
     }
 
     @Get('find')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
     public async findOneUser(@Body() body) {
@@ -47,7 +47,7 @@ export class UsersController {
     }
 
     @Get('/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
     public async getUser(@Param() param){
@@ -67,7 +67,7 @@ export class UsersController {
     }
 
     @Get('/recherche/searchUser')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
     public async esSearchUser(@Body('search_user') search_user: string){   
@@ -80,7 +80,7 @@ export class UsersController {
     }
 
     @Get('/routes/user')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async testAuthRoute(){
@@ -90,7 +90,7 @@ export class UsersController {
     }
 
     @Get('/routes/admin')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
     public async testAuthRoute1(){
@@ -101,7 +101,7 @@ export class UsersController {
     
     /*Inscription avec ElasticSearch*/
     // @Post() 
-    // // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    // // //@UseGuards(AuthGuard('jwt'), RolesGuard)
     // @Roles('user', 'admin')
     // @ApiBearerAuth()
     // @HttpCode(HttpStatus.OK)
@@ -119,7 +119,7 @@ export class UsersController {
     // }
 
     @Post() 
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async create(@Body() createUserDto: CreateUserDto, @Body() body) {
@@ -144,7 +144,7 @@ export class UsersController {
     }
 
     @Post('sendMail')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async sendMail(@Body() body){
@@ -161,7 +161,7 @@ export class UsersController {
     }
 
     @Post('sendMailMultiple')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async sendMailMultiple(@Body() body){
@@ -178,7 +178,7 @@ export class UsersController {
     }
 
     @Post('/sendMail/PdfGenerated')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async generatePDF(@Body() body, @Res() res) {
@@ -212,7 +212,7 @@ export class UsersController {
     }
 
     @Post('/sendMailMultiple/PdfGenerated')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async sendMailPdfMultiple(@Body() body, @Res() res) {
@@ -246,7 +246,7 @@ export class UsersController {
     }
 
     @Put('/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('admin')
     @UseInterceptors(
@@ -312,7 +312,7 @@ export class UsersController {
     }      
 
     @Delete('/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
     @UseFilters(new HttpExceptionFilter())
     @Roles('user', 'admin')
     public async deleteUser(@Param() param, @Res() res) {

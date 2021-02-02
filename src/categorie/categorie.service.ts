@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { categorieInterface } from './interfaces/categorie.interfaces'
-import { categorieDto } from './dto/categorie.dto'
+import { categorieInterface } from './interfaces/categorie.interfaces';
+import { categorieDto } from './dto/categorie.dto';
 
 @Injectable()
 export class categorieService {

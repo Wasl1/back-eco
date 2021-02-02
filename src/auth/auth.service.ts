@@ -33,9 +33,14 @@ export class AuthService {
       }
       await this.checkPassword(loginUserDto.password, user);
       await this.passwordsAreMatch(user);
+      const userToken: JwtPayload = {
+        userId: user._id,
+        email: user.email,
+        roles : user.roles
+      };
       return {
-          accessToken: await this.createAccessToken(user._id),
-          refreshToken: await this.createRefreshToken(req, user._id),
+          accessToken: await sign({userToken}, process.env.JWT_SECRET , { expiresIn: process.env.JWT_EXPIRATION }),
+          refreshToken: await this.createRefreshToken(req, user._id)
       };
     }
 

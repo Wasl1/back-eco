@@ -20,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         if(!user){
             throw new HttpException({
                 code: 4003,
-                message: "VUtilisateur introuvable)",
+                message: "Utilisateur introuvable",
                 value: []
               }, HttpStatus.OK);
         }
