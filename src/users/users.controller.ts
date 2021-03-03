@@ -1,15 +1,14 @@
-import { Controller, Post, Body, Get, UseGuards, Put, Param, Delete, HttpException, Res, HttpStatus, UseFilters, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Put, Param, Delete, HttpException, Res, HttpStatus, Request, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
 import { transporter, nodemailer, email } from "src/templates/template.mail";
 import { printer, docDefinitionFacture } from "src/templates/template.pdf";
-import { Roles } from './../auth/decorators/roles.decorator';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { HttpExceptionFilter  } from 'src/exception/unauthorizedExceptionFilter';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { editFileName, resizeImagesAvatar } from 'src/ImageConverter/file.util';
+import { RBAcPermissions, RBAcGuard } from 'nestjs-rbac';
 var sizeOf = require("image-size");
 const fs = require('fs-extra');
 var glob = require("glob");
@@ -18,24 +17,27 @@ var glob = require("glob");
 export class UsersController {
     constructor(private usersService: UsersService) {}
 
+    // @RBAcPermissions('permission1', 'permission1@create')
+    // @UseGuards(AuthGuard('jwt'), RBAcGuard)
     @Get()
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('admin')
-    public async getAllUsers() {
+    public async getAllUsers(@Request() req) {
         const users = await this.usersService.findAll();
+        req.user;
         return {
             code: 4000,
             message: "liste de tous les users",
             value: users
-        };
-        
+        }; 
+    }
+
+    @RBAcPermissions('permission1', 'permission1@create')
+    @UseGuards(AuthGuard('jwt'), RBAcGuard)
+    @Post('auth/login')
+    async login(@Request() req) {
+      return req.user;
     }
 
     @Get('find')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('admin')
     public async findOneUser(@Body() body) {
         const queryCondition = body;
         const users = await this.usersService.findOne(queryCondition);
@@ -47,9 +49,6 @@ export class UsersController {
     }
 
     @Get('/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('admin')
     public async getUser(@Param() param){
         const user = await this.usersService.findById(param.id);
         if (user == null){
@@ -67,9 +66,6 @@ export class UsersController {
     }
 
     @Get('/recherche/searchUser')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('admin')
     public async esSearchUser(@Body('search_user') search_user: string){   
         const results = await this.usersService.userSearch(search_user);
         return { 
@@ -80,9 +76,6 @@ export class UsersController {
     }
 
     @Get('/routes/user')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async testAuthRoute(){
         return {
             message: 'for user and admin'
@@ -90,9 +83,6 @@ export class UsersController {
     }
 
     @Get('/routes/admin')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('admin')
     public async testAuthRoute1(){
         return {
             message: 'admin only'
@@ -118,10 +108,7 @@ export class UsersController {
     //     }
     // }
 
-    @Post() 
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
+    @Post()
     public async create(@Body() createUserDto: CreateUserDto, @Body() body) {
         const { username, email } = createUserDto;
         const usernameFinded = await this.usersService.findOneByUsername({username});
@@ -144,9 +131,6 @@ export class UsersController {
     }
 
     @Post('sendMail')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async sendMail(@Body() body){
         let info = await transporter.sendMail({
             from: '"E-commerce GWERT" <foo@example.com>',
@@ -161,9 +145,6 @@ export class UsersController {
     }
 
     @Post('sendMailMultiple')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async sendMailMultiple(@Body() body){
         let info = await transporter.sendMail({
             from: '"E-commerce GWERT" <foo@example.com>',
@@ -178,9 +159,6 @@ export class UsersController {
     }
 
     @Post('/sendMail/PdfGenerated')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async generatePDF(@Body() body, @Res() res) {
     
         const pdfDoc = printer.createPdfKitDocument(docDefinitionFacture);
@@ -212,9 +190,6 @@ export class UsersController {
     }
 
     @Post('/sendMailMultiple/PdfGenerated')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async sendMailPdfMultiple(@Body() body, @Res() res) {
     
         const pdfDoc = printer.createPdfKitDocument(docDefinitionFacture);
@@ -246,9 +221,6 @@ export class UsersController {
     }
 
     @Put('/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('admin')
     @UseInterceptors(
       FileInterceptor('avatar', {
         storage: diskStorage({
@@ -312,9 +284,6 @@ export class UsersController {
     }      
 
     @Delete('/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async deleteUser(@Param() param, @Res() res) {
         const user = await this.usersService.findById(param.id);
         let avatar = user['avatar'];

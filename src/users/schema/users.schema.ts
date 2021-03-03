@@ -58,9 +58,9 @@ export const UsersSchema = new mongoose.Schema({
         required: true
     },
 
-    roles: {
-        type: [String],
-        default: ['user']
+    role: {
+        type: String,
+        default: 'user'
     },
     avatar: {
         type: String,
@@ -88,15 +88,6 @@ UsersSchema.pre('save', function(next){
         });
     });
 }); 
-
-UsersSchema.methods.checkPassword = function(attempt, callback){
-    let user = this;
-
-    bcrypt.compare(attempt, user.password, (err, isMatch) => {
-        if(err) return callback(err);
-        callback(null, isMatch);
-    });
-};
 
 UsersSchema.methods.toJSON = function(){
     let obj = this.toObject();

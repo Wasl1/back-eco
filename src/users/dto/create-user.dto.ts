@@ -11,6 +11,6 @@ export class CreateUserDto {
     readonly pays: string;
     readonly codePostal: string;
     readonly tel: string;
-    readonly roles: [string];
+    readonly role: string;
     readonly avatar: string;
 }

@@ -1,4 +1,7 @@
+import { ObjectID } from 'bson';
+
 export interface Users {
+    readonly _id: ObjectID;
     readonly email: string;
     readonly username: string;
     readonly password: string;
@@ -11,7 +14,7 @@ export interface Users {
     readonly pays: string;
     readonly codePostal: string;
     readonly tel: string;
-    readonly roles: [string];
+    readonly role: string;
     readonly avatar: {};
     readonly verification: string;
 }

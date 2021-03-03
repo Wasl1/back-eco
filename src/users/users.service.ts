@@ -7,7 +7,8 @@ import { debug } from 'console';
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel('User') private userModel: Model<Users>) {}
+    constructor(
+        @InjectModel('User') private userModel: Model<Users>) {}
 
     async create(createUserDto: CreateUserDto) {
         let createdUser = new this.userModel(createUserDto);
@@ -16,6 +17,13 @@ export class UsersService {
 
      async findOne(options: object): Promise<Users> {
         return await this.userModel.findOne(options).exec();
+    }
+
+    async findOneUsername(username: string): Promise<Users> {
+        let find = await this.userModel.findOne({username: username}).exec();
+        console.log(find);
+        return find;
+        
     }
 
     async findOneByUsername(filter = {}): Model<Users> {
@@ -76,4 +84,5 @@ export class UsersService {
         }))
         .catch(err => { throw new HttpException(err, 500); });
     }
+
 }

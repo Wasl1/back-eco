@@ -11,7 +11,7 @@ import { MulterModule } from '@nestjs/platform-express';
     PassportModule.register({ defaultStrategy: 'jwt', session: false }),
     MulterModule.register({dest: './uploads',})
   ],
-  exports: [UsersService],
+  exports: [UsersService, MongooseModule.forFeature([{ name: 'User', schema: UsersSchema }])],
   controllers: [UsersController],
   providers: [UsersService]
 })

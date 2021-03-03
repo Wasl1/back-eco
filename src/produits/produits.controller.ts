@@ -1,12 +1,8 @@
-import { Controller, Post, Body, Get, Param, Put, Delete, Res, HttpStatus, ParseIntPipe, UseInterceptors, UploadedFiles, UseGuards, HttpCode, UseFilters } from "@nestjs/common";
+import { Controller, Post, Body, Get, Param, Put, Delete, Res, ParseIntPipe, UseInterceptors, UploadedFiles, UseGuards, UseFilters } from "@nestjs/common";
 import { ProduitsService } from "./produits.service";
 import { ProduitsDto } from "./dto/produits.dto";
 import { HistoricSearchService } from "src/historic-search/historic-search.service";
 import { printer, docDefinitionFacture } from "src/templates/template.pdf";
-import { AuthGuard } from "@nestjs/passport";
-import { RolesGuard } from "src/auth/guards/roles.guard";
-import { Roles } from "src/auth/decorators/roles.decorator";
-import { ApiBearerAuth, ApiOkResponse } from "@nestjs/swagger";
 import { InjectModel } from "@nestjs/mongoose";
 import { ProduitsInterface } from "./interface/produits.interface";
 import { Model } from 'mongoose';
@@ -14,6 +10,8 @@ import { diskStorage } from 'multer';
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { editFileName, resizeImagesProduits } from 'src/ImageConverter/file.util';
 import { HttpExceptionFilter  } from 'src/exception/unauthorizedExceptionFilter';
+import { AuthGuard } from "@nestjs/passport";
+import { RBAcPermissions, RBAcGuard } from "nestjs-rbac";
 let path = require('path');
 let sizeOf = require("image-size");
 const fs = require('fs-extra');
@@ -144,10 +142,10 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     pdfDoc.end();
   }
 
-  @Post()
-  //@UseGuards(AuthGuard('jwt'), RolesGuard)
+  // @RBAcPermissions('produit')
+  // @UseGuards(AuthGuard('jwt'), RBAcGuard)
   @UseFilters(new HttpExceptionFilter())
-  @Roles('user', 'admin')
+  @Post()
   async create(@Body() addProduitsDto: ProduitsDto) {  
     let data = {};
     let detail_fabrication = {};
@@ -196,9 +194,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
   }
 
   @Post("/duplicate")
-  //@UseGuards(AuthGuard('jwt'), RolesGuard)
-  @UseFilters(new HttpExceptionFilter())
-  @Roles('user', 'admin')
   public async duplicateProduit(@Body() body){
     if( !body.id_produits ){
      return { 
@@ -242,9 +237,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
   }
 
   @Put('/:id')
-  //@UseGuards(AuthGuard('jwt'), RolesGuard)
-  @UseFilters(new HttpExceptionFilter())
-  @Roles('user', 'admin')
     public async updateProduits(@Param() param, @Body() body, @Body() vraiBody){ 
       const produit = await this.produitsService.findByIdProduit(param.id);
     
@@ -309,9 +301,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/lancement/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async updateLancement(@Param() param, @Body() body){
       let lancer = {};
       let date = new Date().toISOString().slice(0, 10);
@@ -324,9 +313,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/multipleLancement')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async updateMultipleLancement(@Body() body){
       if( !body.id_produits ){
         return { 
@@ -347,9 +333,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/archive/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async updateArchive(@Param() param, @Body() body){
       let archive = {};
       let date = new Date().toISOString().slice(0, 10);
@@ -362,9 +345,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/multipleArchive')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async updateMultipleArchive(@Body() body){
       if( !body.id_produits ) {
         return { 
@@ -385,9 +365,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/imagesAdd/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     @UseInterceptors(
       FilesInterceptor('images', 3, {
         storage: diskStorage({
@@ -462,9 +439,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/imagesRemove/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async deleteImages(@Param() param, @Body() body){
       let images = body.images;
       for (var i = 0; i < images.length; i++){
@@ -485,9 +459,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/favorisAdd/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async updateFavorisPush(@Param() param, @Body() body){
       if( !body.acteur ) {
         return { 
@@ -507,9 +478,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/favorisRemove/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async updateFavorisPull(@Param() param, @Body() body){
       if( !body.acteur ) {
         return { 
@@ -530,9 +498,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/voteAdd/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async updateVotePush(@Param() param, @Body() body){
       if( !body.acteur ) {
         return { 
@@ -552,9 +517,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/voteRemove/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async updateVotePull(@Param() param, @Body() body){
       if( !body.acteur ) {
         return { 
@@ -574,9 +536,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/incrementView/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async incrementView(@Param() param){
       const produits = await this.produitsService.incrementView(param.id);
       return {
@@ -587,9 +546,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/updateMultipleEtat')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async updateMultipleEtat(@Body() body){
       let id_produits = [];
       id_produits = body.id_produits;
@@ -603,9 +559,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Put('/update/decrementQuantite/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async decrementQuantite(@Param() param, @Body() body){
       const produit = await this.produitsService.findByIdProduit(param.id);
 
@@ -629,9 +582,6 @@ public async getImage(@Param('imgpath') images, @Res() res) {
     }
 
     @Delete('/:id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
     public async deleteProduits(@Param() param, @Res() res) {
         const produit = await this.produitsService.findByIdProduit(param.id);
         let images = produit['images'];        
@@ -655,10 +605,7 @@ public async getImage(@Param('imgpath') images, @Res() res) {
         return this.produitsService.deleteProduit(param.id);
     }
 
-    @Delete('/delete/deleteMultipleProduits')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @UseFilters(new HttpExceptionFilter())
-    @Roles('user', 'admin')
+    @Post('/delete/deleteMultipleProduits')
     public async deleteManyProduits(@Body() body, @Res() res){
       if( !body.id_produits ) {
         return { 

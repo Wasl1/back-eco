@@ -1,9 +1,6 @@
 import { Controller,Post,Body,Get,Param,Delete,HttpStatus, Put, UseGuards, HttpCode, Res } from '@nestjs/common';
 import { categorieService } from './categorie.service';
-import { categorieDto } from './dto/categorie.dto'
-import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
+import { categorieDto } from './dto/categorie.dto';
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 
 
@@ -12,11 +9,6 @@ export class categorieController {
     constructor(private readonly categorieService: categorieService) {}
 
     @Post()
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    // @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     async addcategorie(@Body() CreatePostDTO: categorieDto) {        
         if (CreatePostDTO.nom == undefined|| CreatePostDTO.description == undefined) {
             return {
@@ -55,11 +47,6 @@ export class categorieController {
     }
 
     @Put(':id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     async updatecategorie(@Param('id') categorieId: string, @Body() CreatePostDTO: categorieDto) {
         const categorie = await this.categorieService.updatecategorie(categorieId,CreatePostDTO);
         return {
@@ -70,11 +57,6 @@ export class categorieController {
     };
         
     @Delete(':id')
-    //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles('admin')
-    @ApiBearerAuth()
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({})
     async removecategorie(@Param('id') categorieId: string, @Res() res) {
         const isDeleted = await this.categorieService.deletecategorie(categorieId);
         res.send({
