@@ -17,8 +17,6 @@ var glob = require("glob");
 export class UsersController {
     constructor(private usersService: UsersService) {}
 
-    // @RBAcPermissions('permission1', 'permission1@create')
-    // @UseGuards(AuthGuard('jwt'), RBAcGuard)
     @Get()
     public async getAllUsers(@Request() req) {
         const users = await this.usersService.findAll();
@@ -91,11 +89,6 @@ export class UsersController {
     
     /*Inscription avec ElasticSearch*/
     // @Post() 
-    // // //@UseGuards(AuthGuard('jwt'), RolesGuard)
-    // @Roles('user', 'admin')
-    // @ApiBearerAuth()
-    // @HttpCode(HttpStatus.OK)
-    // @ApiOkResponse({})
     // public async create(@Body() createUserDto: CreateUserDto, @Body() body) {
     //     const username = await this.usersService.findOneByUsernameEs(body.username);
     //     const email = await this.usersService.findOneByEmailEs(body.email);

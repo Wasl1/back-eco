@@ -34,19 +34,15 @@ export class ProduitsService {
     }
 
     async createMultipleProduit(produitsInterface: any) {
-        // const createdTodo = new this.produitsModel(produitsInterface);
-        // return await createdTodo.insertMany();  
         return await this.produitsModel.insertMany(produitsInterface);
         
     }
 
     async updateProduit(ID: number, newValue: ProduitsInterface): Promise<ProduitsInterface> {
         const produits = await this.produitsModel.findById(ID).exec();
-
         if (!produits._id) {
             debug('produit introuvable');
         }
-
         return await this.produitsModel.findByIdAndUpdate(ID, newValue, {new: true}).exec();
     }
 

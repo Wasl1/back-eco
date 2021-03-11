@@ -1,7 +1,6 @@
 import { Controller,Post,Body,Get,Param,Delete,HttpStatus, Put, UseGuards, HttpCode, Res } from '@nestjs/common';
 import { categorieService } from './categorie.service';
 import { categorieDto } from './dto/categorie.dto';
-import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 
 
 @Controller('categorie')
