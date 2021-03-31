@@ -15,8 +15,8 @@ dist
 
 /.env
 
-/uploads/produits/*
-/uploads/avatars/*
+uploads/produits/*
+uploads/avatars/*
 
 # IDEs and editors
 /.idea
