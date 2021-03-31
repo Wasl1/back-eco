@@ -13,6 +13,8 @@ dist/*
 # dependencies
 /node_modules
 
+/.env
+
 /uploads/produits/*
 /uploads/avatars/*
 

@@ -12,6 +12,6 @@ async function bootstrap() {
 
   // CORS activé pour faire des demandes interdomaines
   app.enableCors();
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 8080);
 }
 bootstrap();
